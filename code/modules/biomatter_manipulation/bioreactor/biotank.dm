@@ -179,7 +179,7 @@
 		if(QUALITY_BOLT_TURNING)
 			if(!platform.pipes_opened)
 				return
-			var/obj/structure/reagent_dispensers/biomatter/possible_canister = locate() in platform.MS_bioreactor.output_port.loc
+			var/obj/structure/reagent_dispensers/biomatter/possible_canister = locate() in platform.MS_bioreactor?.output_port?.loc
 			if(!possible_canister)
 				to_chat(user, SPAN_WARNING("Nothing to connect to!"))
 				return
@@ -205,14 +205,14 @@
 	canister = target_tank
 	platform.MS_bioreactor.metrics_screen.icon_state = "screen_process"
 	flick("screen_activation", platform.MS_bioreactor.metrics_screen)
-	playsound(platform.MS_bioreactor.output_port.loc, 'sound/machines/Custom_extin.ogg', 100, 1)
+	playsound(platform.MS_bioreactor?.output_port?.loc, 'sound/machines/Custom_extin.ogg', 100, 1)
 
 
 /obj/structure/biomatter_tank/proc/unset_canister(obj/target_tank)
 	target_tank.anchored = FALSE
 	canister = null
 	platform.MS_bioreactor.metrics_screen.icon_state = initial(platform.MS_bioreactor.metrics_screen.icon_state)
-	playsound(platform.MS_bioreactor.output_port.loc, 'sound/machines/Custom_extout.ogg', 100, 1)
+	playsound(platform.MS_bioreactor?.output_port?.loc, 'sound/machines/Custom_extout.ogg', 100, 1)
 
 
 #undef DIRT_LVL_LOW
