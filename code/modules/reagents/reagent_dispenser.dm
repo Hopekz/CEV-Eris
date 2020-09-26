@@ -6,6 +6,11 @@
 	density = TRUE
 	anchored = FALSE
 	reagent_flags = DRAINABLE | AMOUNT_VISIBLE
+	//sapwn_values
+	bad_types = /obj/structure/reagent_dispensers
+	rarity_value = 10
+	spawn_frequency = 10
+	spawn_tags = SPAWN_TAG_REAGENT_DISPENSER
 	var/volume = 1500
 	var/starting_reagent
 	var/amount_per_transfer_from_this = 10
@@ -37,8 +42,10 @@
 
 			if(do_after(user, 20, src))
 				if(!src) return
-				to_chat(user, SPAN_NOTICE("You [anchored? "un" : ""]secured \the [src]!"))
-				set_anchored(!anchored)
+				if(set_anchored(!anchored))
+					to_chat(user, SPAN_NOTICE("You [anchored? "" : "un"]secured \the [src]!"))
+				else
+					to_chat(user, SPAN_WARNING("Ugh. You done something wrong!"))
 			return FALSE
 	else
 		return ..()
@@ -86,6 +93,7 @@
 
 /obj/structure/reagent_dispensers/watertank/derelict
 	icon_state = "watertank-derelict"
+	spawn_blacklisted = TRUE
 
 /obj/structure/reagent_dispensers/watertank/huge
 	name = "high-capacity water tank"
@@ -94,9 +102,11 @@
 	volume = 3000
 	price_tag = 100
 	contents_cost = 300
+	rarity_value = 30
 
 /obj/structure/reagent_dispensers/watertank/huge/derelict
 	icon_state = "hvwatertank-derelict"
+	spawn_blacklisted = TRUE
 
 /obj/structure/reagent_dispensers/fueltank
 	name = "fuel tank"
@@ -104,8 +114,8 @@
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "weldtank"
 	amount_per_transfer_from_this = 10
-	var/modded = 0
-	var/obj/item/device/assembly_holder/rig = null
+	var/modded = FALSE
+	var/obj/item/device/assembly_holder/rig
 	volume = 500
 	starting_reagent = "fuel"
 	price_tag = 50
@@ -113,6 +123,7 @@
 
 /obj/structure/reagent_dispensers/fueltank/derelict
 	icon_state = "weldtank-derelict"
+	spawn_blacklisted = TRUE
 
 /obj/structure/reagent_dispensers/fueltank/huge
 	name = "high-capacity fuel tank"
@@ -121,15 +132,17 @@
 	volume = 1000
 	price_tag = 100
 	contents_cost = 1500
+	rarity_value = 30
 
 /obj/structure/reagent_dispensers/fueltank/huge/derelict
 	icon_state = "hvweldtank-derelict"
+	spawn_blacklisted = TRUE
 
 /obj/structure/reagent_dispensers/fueltank/examine(mob/user)
 	if(!..(user, 2))
 		return
 	if(modded)
-		to_chat(user, SPAN_WARNING("Fuel faucet is wrenched open, leaking the fuel!"))
+		to_chat(user, SPAN_WARNING("Fuel faucet is open, leaking the fuel!"))
 	if(rig)
 		to_chat(user, SPAN_NOTICE("There is some kind of device rigged to the tank."))
 
@@ -144,11 +157,11 @@
 
 /obj/structure/reagent_dispensers/fueltank/attackby(obj/item/I, mob/user)
 	src.add_fingerprint(user)
-	if(QUALITY_BOLT_TURNING in I.tool_qualities)
-		if(I.use_tool(user, src, WORKTIME_FAST, QUALITY_BOLT_TURNING, FAILCHANCE_EASY,  required_stat = STAT_MEC))
-			user.visible_message("[user] wrenches [src]'s faucet [modded ? "closed" : "open"].", \
-				"You wrench [src]'s faucet [modded ? "closed" : "open"]")
-			modded = modded ? 0 : 1
+	if(QUALITY_SCREW_DRIVING in I.tool_qualities)
+		if(I.use_tool(user, src, WORKTIME_FAST, QUALITY_SCREW_DRIVING, FAILCHANCE_EASY,  required_stat = STAT_MEC))
+			user.visible_message("[user] screws [src]'s faucet [modded ? "closed" : "open"].", \
+				"You screw [src]'s faucet [modded ? "closed" : "open"]")
+			modded = !modded
 			if (modded)
 				message_admins("[key_name_admin(user)] opened fueltank at [loc.loc.name] ([loc.x],[loc.y],[loc.z]), leaking fuel. (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[loc.x];Y=[loc.y];Z=[loc.z]'>JMP</a>)")
 				log_game("[key_name(user)] opened fueltank at [loc.loc.name] ([loc.x],[loc.y],[loc.z]), leaking fuel.")
@@ -236,6 +249,7 @@
 	amount_per_transfer_from_this = 45
 	volume = 1000
 	starting_reagent = "condensedcapsaicin"
+	spawn_blacklisted = TRUE
 
 
 /obj/structure/reagent_dispensers/water_cooler
@@ -248,6 +262,7 @@
 	anchored = TRUE
 	volume = 500
 	starting_reagent = "water"
+	spawn_blacklisted = TRUE
 
 /obj/structure/reagent_dispensers/beerkeg
 	name = "beer keg"
@@ -258,6 +273,8 @@
 	starting_reagent = "beer"
 	price_tag = 50
 	contents_cost = 700
+	spawn_blacklisted = TRUE
+	
 
 /obj/structure/reagent_dispensers/cahorsbarrel
 	name = "NeoTheology Cahors barrel"
@@ -267,6 +284,7 @@
 	starting_reagent = "ntcahors"
 	price_tag = 50
 	contents_cost = 950
+	spawn_blacklisted = TRUE
 
 /obj/structure/reagent_dispensers/virusfood
 	name = "virus food dispenser"
@@ -277,6 +295,7 @@
 	density = FALSE
 	volume = 1000
 	starting_reagent = "virusfood"
+	spawn_blacklisted = TRUE
 
 /obj/structure/reagent_dispensers/acid
 	name = "sulphuric acid dispenser"
@@ -287,6 +306,7 @@
 	density = FALSE
 	volume = 1000
 	starting_reagent = "sacid"
+	spawn_blacklisted = TRUE
 
 //this is big movable beaker
 /obj/structure/reagent_dispensers/bidon
@@ -294,6 +314,7 @@
 	desc = "Bulk Industrial Dispenser Omnitech-Nanochem. A canister with acid-resistant linings intended for handling big volumes of chemicals."
 	icon = 'icons/obj/machines/chemistry.dmi'
 	icon_state = "bidon"
+	rarity_value = 15
 	matter = list(MATERIAL_STEEL = 16, MATERIAL_GLASS = 8, MATERIAL_PLASTIC = 6)
 	reagent_flags = AMOUNT_VISIBLE
 	amount_per_transfer_from_this = 30
@@ -313,6 +334,7 @@
 	reagent_flags = TRANSPARENT
 	filling_states = list(20,40,60,80,100)
 	volume = 900
+	rarity_value = 60
 
 /obj/structure/reagent_dispensers/bidon/Initialize(mapload, ...)
 	. = ..()

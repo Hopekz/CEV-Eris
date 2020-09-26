@@ -127,7 +127,7 @@
 	name = "biogenerator screen"
 	icon_state = "screen-working"
 
-	circuit = /obj/item/weapon/circuitboard/neotheology/biogen_console
+	circuit = /obj/item/weapon/electronics/circuitboard/neotheology/biogen_console
 
 	//we store it here and update with special proc
 	var/list/metrics = list("operational" = FALSE,
@@ -207,7 +207,7 @@
 	var/wearout_cycle = 1200
 	var/pipes_dirtiness = 0
 
-	circuit = /obj/item/weapon/circuitboard/neotheology/biogen_port
+	circuit = /obj/item/weapon/electronics/circuitboard/neotheology/biogen_port
 
 
 /obj/machinery/multistructure/biogenerator_part/port/update_icon()
@@ -244,7 +244,7 @@
 				if(tank)
 					tank.can_anchor = TRUE
 					set_canister = tank.set_anchored(FALSE)
-					if(!isnull(set_canister))
+					if(set_canister)
 						var/datum/component/plumbing/P = tank.GetComponent(/datum/component/plumbing/supply)
 						if(P)
 							P.disable()
@@ -258,7 +258,7 @@
 					tank = locate(/obj/structure/reagent_dispensers) in get_turf(src)
 					if(tank)
 						set_canister = tank.set_anchored(TRUE)
-						if(!isnull(set_canister))
+						if(set_canister)
 							tank.can_anchor = FALSE
 							var/datum/component/plumbing/P = tank.GetComponent(/datum/component/plumbing/supply)
 							if(P)
@@ -269,7 +269,7 @@
 							tank.pixel_x = 8
 							playsound(src, 'sound/machines/airlock_ext_close.ogg', 60, 1)
 							to_chat(user, SPAN_NOTICE("You attached [tank] to [src]."))	
-				if(isnull(set_canister))
+				if(!set_canister)
 					to_chat(user, SPAN_WARNING("Ugh. You done something wrong!"))
 					tank = null
 		if(QUALITY_SCREW_DRIVING)
@@ -312,7 +312,7 @@
 	var/obj/machinery/atmospherics/binary/biogen_chamber/chamber
 	var/obj/machinery/power/biogenerator_core/core
 
-	circuit = /obj/item/weapon/circuitboard/neotheology/biogen
+	circuit = /obj/item/weapon/electronics/circuitboard/neotheology/biogen
 
 
 /obj/machinery/multistructure/biogenerator_part/generator/New()
