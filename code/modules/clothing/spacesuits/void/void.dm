@@ -39,7 +39,6 @@
 	resilience = 0.09
 	can_breach = 1
 	spawn_tags = SPAWN_TAG_VOID_SUIT
-	rarity_value = 10
 	accompanying_object = /obj/item/clothing/shoes/magboots
 
 	//Inbuilt devices.
@@ -85,6 +84,12 @@
 
 	return ..()
 
+/obj/item/clothing/suit/space/void/make_young()
+	..()
+	if(boots) boots.make_young()
+	if(helmet) helmet.make_young()
+	if(tank) tank.make_young()
+
 /obj/item/clothing/suit/space/void/equipped(mob/M)
 	..()
 
@@ -103,11 +108,7 @@
 			boots.canremove = 0
 
 	if(helmet)
-		if(H.head)
-			to_chat(M, "You are unable to deploy your suit's helmet as \the [H.head] is in the way.")
-		else if(H.equip_to_slot_if_possible(helmet, slot_head))
-			to_chat(M, "Your suit's helmet deploys with a hiss.")
-			helmet.canremove = 0
+		toggle_helmet()
 
 	if(tank)
 		if(H.s_store) //In case someone finds a way.

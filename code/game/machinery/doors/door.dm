@@ -179,8 +179,11 @@
 			qdel(src)
 
 	if(damage)
+		if(Proj.nocap_structures)
+			take_damage(damage)
+		else
 		//cap projectile damage so that there's still a minimum number of hits required to break the door
-		take_damage(min(damage, 100))
+			take_damage(min(damage, 100))
 
 
 
@@ -197,20 +200,22 @@
 	take_damage(damage)
 	return
 
-/obj/machinery/door/attack_hand(mob/user as mob)
-	if(src.allowed(user) && operable())
-		if(src.density)
+/obj/machinery/door/attack_hand(mob/user)
+	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+	if(allowed(user) && operable())
+		if(density)
 			open()
 		else
 			close()
-		return
+	else
+		do_animate("deny")
 
-/obj/machinery/door/attack_tk(mob/user as mob)
+/obj/machinery/door/attack_tk(mob/user)
 	if(requiresID() && !allowed(null))
 		return
 	..()
 
-/obj/machinery/door/attackby(obj/item/I as obj, mob/user as mob)
+/obj/machinery/door/attackby(obj/item/I, mob/user)
 	src.add_fingerprint(user)
 
 	//Harm intent overrides other actions
@@ -362,10 +367,10 @@
 	stat |= BROKEN
 
 	if (health <= 0)
-		visible_message("<span class = 'warning'>\The [src.name] breaks open!</span>")
+		visible_message(SPAN_WARNING("\The [src.name] breaks open!"))
 		open(TRUE)
 	else
-		visible_message("<span class = 'warning'>\The [src.name] breaks!</span>")
+		visible_message(SPAN_WARNING("\The [src.name] breaks!"))
 	update_icon()
 
 
@@ -388,11 +393,8 @@
 	return
 
 
-/obj/machinery/door/update_icon()
-	if(density)
-		icon_state = "door1"
-	else
-		icon_state = "door0"
+/obj/machinery/door/on_update_icon()
+	SetIconState("door[density]")
 	update_openspace()
 
 
@@ -400,20 +402,20 @@
 	switch(animation)
 		if("opening")
 			if(p_open)
-				flick("o_doorc0", src)
+				FLICK("o_doorc0", src)
 			else
-				flick("doorc0", src)
+				FLICK("doorc0", src)
 		if("closing")
 			if(p_open)
-				flick("o_doorc1", src)
+				FLICK("o_doorc1", src)
 			else
-				flick("doorc1", src)
+				FLICK("doorc1", src)
 		if("spark")
 			if(density)
-				flick("door_spark", src)
+				FLICK("door_spark", src)
 		if("deny")
 			if(density && !(stat & (NOPOWER|BROKEN)))
-				flick("door_deny", src)
+				FLICK("door_deny", src)
 				playsound(src.loc, 'sound/machines/Custom_deny.ogg', 50, 0)
 	return
 
@@ -429,7 +431,7 @@
 		f6?.set_opacity(0)
 
 	do_animate("opening")
-	icon_state = "door0"
+	SetIconState("door0")
 	sleep(3)
 	src.density = FALSE
 	update_nearby_tiles()
@@ -516,5 +518,4 @@
 
 /obj/machinery/door/morgue
 	icon = 'icons/obj/doors/doormorgue.dmi'
-
 

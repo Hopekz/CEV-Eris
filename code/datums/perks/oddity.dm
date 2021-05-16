@@ -122,7 +122,7 @@
 /datum/perk/oddity/fast_fingers
 	name = "Fast Fingers"
 	desc = "Nothing is safe around your hands. You are a true kleptomaniac. \
-			Taking items off others is without sound and prompts, it's also quicker."
+			Taking items off others is without sound and prompts, it's also quicker, and you can slip pills into drinks unnoticed."
 	icon_state = "robber_hand" // https://game-icons.net/1x1/darkzaitzev/robber-hand.html
 
 /datum/perk/oddity/quiet_as_mouse
@@ -210,3 +210,71 @@
 	name = "Sure Step"
 	desc = " You are more likely to avoid traps."
 	icon_state = "mantrap"
+
+/datum/perk/oddity/market_prof
+	name = "Market Professional"
+	desc = "Just by looking at the item you can know how much it cost."
+	icon_state = "market_prof"
+
+///////////////////////////////////////
+//////// NT ODDITYS PERKS /////////////
+///////////////////////////////////////
+
+/datum/perk/nt_oddity
+	gain_text = "God chose you to expand his will."
+
+/datum/perk/nt_oddity/holy_light
+	name = "Holy Light"
+	desc = "You have been touched by the divine. You now provide a weak healing aura, healing both brute and burn damage to any NeoThelogists nearby as well as yourself."
+	icon_state = "third_eye"  //https://game-icons.net/1x1/lorc/third-eye.html
+	var/healing_power = 0.1
+	var/cooldown = 1 SECONDS // Just to make sure that perk don't go berserk.
+	var/initial_time
+
+/datum/perk/nt_oddity/holy_light/assign(mob/living/carbon/human/H)
+	..()
+	initial_time = world.time
+
+/datum/perk/nt_oddity/holy_light/on_process()
+	if(!..())
+		return
+	if(!holder.get_core_implant(/obj/item/weapon/implant/core_implant/cruciform))
+		return
+	if(world.time < initial_time + cooldown)
+		return
+	initial_time = world.time
+	for(var/mob/living/L in viewers(holder, 7))
+		if(ishuman(L))
+			var/mob/living/carbon/human/H = L
+			if(H.stat == DEAD || !(H.get_core_implant(/obj/item/weapon/implant/core_implant/cruciform)))
+				continue
+			H.adjustBruteLoss(-healing_power)
+			H.adjustFireLoss(-healing_power)
+
+/datum/perk/oddity/hive_born
+	name = "Hiveborn"
+	desc = "You feel electricty flow within your body to your hands. Powercells recharge in your hands."
+	icon_state = "circuitry"  //https://game-icons.net/1x1/lorc/circuitry.html
+	gain_text = "You feel a stabbing pain of something being injected into you, and with it a painfully pleaseant feeling of being improved."
+	var/cooldown = 10 SECONDS
+	var/initial_time
+	var/obj/item/weapon/cell/C
+
+/datum/perk/oddity/hive_born/assign(mob/living/carbon/human/H)
+	..()
+	initial_time = world.time
+
+/datum/perk/oddity/hive_born/on_process()
+	if(!..())
+		return
+	if(world.time < initial_time + cooldown)
+		return
+	initial_time = world.time
+	if((holder.l_hand && istype(holder.l_hand, /obj/item/weapon/cell)))
+		C = holder.l_hand
+		if(!C.fully_charged())
+			C.give(50)
+	if((holder.r_hand && istype(holder.r_hand, /obj/item/weapon/cell)))
+		C = holder.r_hand
+		if(!C.fully_charged())
+			C.give(50)

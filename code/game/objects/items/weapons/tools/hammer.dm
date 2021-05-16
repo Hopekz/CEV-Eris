@@ -28,7 +28,7 @@
 	tool_qualities = list(QUALITY_HAMMERING = 15)
 	matter = list(MATERIAL_STEEL = 15, MATERIAL_PLASTIC = 1)
 	max_upgrades = 5
-	spawn_tags = SPAWN_TAG_TOOL_TAG_JUNK
+	spawn_tags = SPAWN_TAG_JUNKTOOL
 	rarity_value = 32
 
 /obj/item/weapon/tool/hammer/powered_hammer //to be made into proper two-handed tool as small "powered" hammer doesn't make sense
@@ -94,7 +94,7 @@
 	degradation = 5 //This one breaks REALLY fast
 	max_upgrades = 5 //all makeshift tools get more mods to make them actually viable for mid-late game
 	rarity_value = 30
-	spawn_tags = SPAWN_TAG_TOOL_TAG_JUNK
+	spawn_tags = SPAWN_TAG_JUNKTOOL
 
 /obj/item/weapon/tool/hammer/charge
 	name = "charge hammer"
@@ -152,3 +152,18 @@
 		playsound(src, 'sound/machines/hiss.ogg', 50, 0, 0)
 		user.throw_at(target, get_dist(target, user), 1, user)
 		T.stop()
+
+/obj/item/weapon/tool/hammer/IH
+	name = "FS \"Ironhammer\" Breaching Hammer"
+	desc = "A modified sledgehammer produced by Frozen Star for Ironhammer forces. This tool can take down standard walls and if the user is strong enough, reinforced walls."
+	icon = 'icons/obj/weapons.dmi'
+	icon_state = "ironhammer"
+	item_state = "ironhammer"
+	wielded_icon = "ironhammer_wielded"
+	w_class = ITEM_SIZE_HUGE
+	armor_penetration = ARMOR_PEN_DEEP
+	force = WEAPON_FORCE_ROBUST
+	structure_damage_factor = STRUCTURE_DAMAGE_BORING
+	tool_qualities = list(QUALITY_HAMMERING = 40, QUALITY_PRYING = 1)
+	matter = list(MATERIAL_STEEL = 15, MATERIAL_PLASTIC = 1, MATERIAL_PLASTEEL = 2)
+	spawn_blacklisted = TRUE

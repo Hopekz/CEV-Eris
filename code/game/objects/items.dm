@@ -43,6 +43,7 @@
 	var/body_parts_covered = 0 //see setup.dm for appropriate bit flags
 
 	var/list/tool_qualities// List of item qualities for tools system. See qualities.dm.
+	var/list/aspects = list()
 
 	//var/heat_transfer_coefficient = 1 //0 prevents all transfers, 1 is invisible
 	var/gas_transfer_coefficient = 1 // for leaking gas from turf to mask and vice-versa (for masks right now, but at some point, i'd like to include space helmets)
@@ -158,6 +159,11 @@
 	for(var/Q in tool_qualities)
 		message += "\n<blue>It possesses [tool_qualities[Q]] tier of [Q] quality.<blue>"
 
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		if(H.stats.getPerk(PERK_MARKET_PROF))
+			message += SPAN_NOTICE("\nThis item cost: [get_item_cost()][CREDITS]")
+
 	return ..(user, distance, "", message)
 
 /obj/item/attack_hand(mob/user as mob)
@@ -172,6 +178,7 @@
 /obj/item/proc/pickup(mob/target)
 	throwing = 0
 	var/atom/old_loc = loc
+	SEND_SIGNAL(src, COMSIG_ITEM_PICKED, src, target)
 	if(target.put_in_active_hand(src) && old_loc )
 		if((target != old_loc) && (target != old_loc.get_holding_mob()))
 			do_pickup_animation(target,old_loc)
@@ -209,11 +216,13 @@
 	return TRUE
 
 // called when this item is removed from a storage item, which is passed on as S. The loc variable is already set to the new destination before this is called.
-/obj/item/proc/on_exit_storage(obj/item/weapon/storage/S as obj)
+/obj/item/proc/on_exit_storage(obj/item/weapon/storage/the_storage)
+	SEND_SIGNAL(the_storage, COMSIG_STORAGE_TAKEN, src, the_storage)
 	return
 
 // called when this item is added into a storage item, which is passed on as S. The loc variable is already set to the storage item.
-/obj/item/proc/on_enter_storage(obj/item/weapon/storage/S as obj)
+/obj/item/proc/on_enter_storage(obj/item/weapon/storage/the_storage)
+	SEND_SIGNAL(the_storage, COMSIG_STORAGE_INSERTED, src, the_storage)
 	return
 
 // called when "found" in pockets and storage items. Returns 1 if the search should end.
@@ -374,7 +383,7 @@
 	//apply the blood-splatter overlay if it isn't already in there
 	if(!blood_DNA.len)
 		blood_overlay.color = blood_color
-		overlays += blood_overlay
+		add_overlays(blood_overlay)
 
 	//if this blood isn't already in the list, add it
 	if(istype(M))

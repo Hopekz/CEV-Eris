@@ -29,6 +29,12 @@
 	sort_string = "MABAA"
 	category = CAT_MISC
 
+/datum/design/research/circuit/jukebox
+	name = "jukebox"
+	build_path = /obj/item/weapon/electronics/circuitboard/jukebox
+	sort_string = "MABBA"
+	category = CAT_MISC
+
 /datum/design/research/circuit/secdata
 	name = "security records console"
 	build_path = /obj/item/weapon/electronics/circuitboard/secure_data
@@ -418,6 +424,16 @@
 	req_tech = list(TECH_MAGNET = 3, TECH_POWER = 4)
 	build_path = /obj/item/weapon/electronics/circuitboard/shield_cap
 	sort_string = "VAAAC"*/
+
+// Long range scanner
+/datum/design/research/circuit/lrange_scanner
+	name_category = "long range scanner"
+	category = CAT_MISC
+
+/datum/design/research/circuit/lrange_scanner/hull
+	name = "long range scanner"
+	build_path = /obj/item/weapon/electronics/circuitboard/long_range_scanner
+	sort_string = "VAAAC"
 
 //BS
 /datum/design/research/circuit/telesci/console

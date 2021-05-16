@@ -1,11 +1,6 @@
 /****************************************************
 				BLOOD SYSTEM
 ****************************************************/
-//Blood levels. These are percentages based on the species blood_volume far.
-var/const/BLOOD_VOLUME_SAFE =    85
-var/const/BLOOD_VOLUME_OKAY =    75
-var/const/BLOOD_VOLUME_BAD =     60
-var/const/BLOOD_VOLUME_SURVIVE = 40
 
 /mob/living/carbon
 	var/datum/reagents/vessel // Container for blood and BLOOD ONLY. Do not transfer other chems here.
@@ -228,7 +223,7 @@ proc/blood_splatter(var/target,var/datum/reagent/organic/blood/source,var/large)
 
 	var/obj/effect/decal/cleanable/blood/drip/drop = B
 	if(istype(drop) && drips && drips.len && !large)
-		drop.overlays |= drips
+		drop.associate_with_overlays(drips)
 		drop.drips |= drips
 
 	// If there's no data to copy, call it quits here.
@@ -277,7 +272,7 @@ proc/blood_splatter(var/target,var/datum/reagent/organic/blood/source,var/large)
 /mob/living/carbon/human/get_blood_oxygenation()
 	var/blood_volume = get_blood_circulation()
 	if(is_asystole()) // Heart is missing or isn't beating and we're not breathing (hardcrit)
-		return min(blood_volume, BLOOD_VOLUME_SURVIVE)
+		return min(blood_volume, total_blood_req)
 
 	if(!need_breathe())
 		return blood_volume
@@ -309,7 +304,7 @@ proc/blood_splatter(var/target,var/datum/reagent/organic/blood/source,var/large)
 			open_check = TRUE
 
 	var/blood_volume = get_blood_volume()
-	if( heart_efficiency <= 0 || (pulse == PULSE_NONE && !(status_flags & FAKEDEATH) && !robo_check))
+	if( heart_efficiency <= 1 || (pulse == PULSE_NONE && !(status_flags & FAKEDEATH) && !robo_check))
 		blood_volume *= 0.25
 	else
 		var/pulse_mod = 1

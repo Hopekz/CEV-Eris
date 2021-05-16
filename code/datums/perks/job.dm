@@ -14,6 +14,32 @@
 		holder.sanity.death_view_multiplier *= 2
 	..()
 
+/datum/perk/job/artist
+	name = "Artist"
+	desc = "You have a lot of expertise in making works of art. You gain 150% insight from all sources but can only level \
+			up by creating works of art."
+	var/old_max_insight = INFINITY
+	var/old_max_resting = INFINITY
+	var/old_insight_rest_gain_multiplier = 1
+
+/datum/perk/job/artist/assign(mob/living/carbon/human/H)
+	..()
+	old_max_insight = holder.sanity.max_insight
+	old_max_resting = holder.sanity.max_resting
+	old_insight_rest_gain_multiplier = holder.sanity.insight_rest_gain_multiplier
+	holder.sanity.max_insight = 100
+	holder.sanity.insight_gain_multiplier *= 1.5
+	holder.sanity.max_resting = 1
+	holder.sanity.insight_rest_gain_multiplier = 0
+
+/datum/perk/job/artist/remove()
+	holder.sanity.max_insight += old_max_insight - 100
+	holder.sanity.insight_gain_multiplier /= 1.5
+	holder.sanity.max_resting += old_max_resting - 1
+	holder.sanity.insight_rest_gain_multiplier += old_insight_rest_gain_multiplier
+	..()
+
+
 /datum/perk/selfmedicated
 	name = "Self-medicated"
 	desc = "You have very shoddy handwriting. This lets you write prescriptions to yourself! \
@@ -89,7 +115,7 @@
 		if(stash.stash_location)
 			choices += CHOICE_STASHPAPER
 	// Let's see if an additional language is feasible. If the user has them all already somehow, we aren't gonna choose this.
-	var/list/valid_languages = list(LANGUAGE_CYRILLIC, LANGUAGE_SERBIAN, LANGUAGE_GERMAN) // Not static, because we're gonna remove languages already known by the user
+	var/list/valid_languages = list(LANGUAGE_CYRILLIC, LANGUAGE_SERBIAN, LANGUAGE_GERMAN, LANGUAGE_NEOHONGO, LANGUAGE_LATIN) // Not static, because we're gonna remove languages already known by the user
 	for(var/l in valid_languages)
 		var/datum/language/L = all_languages[l]
 		if(L in holder.languages)
@@ -164,3 +190,53 @@
 	name = "Sommelier"
 	desc = "You know how to handle even strongest alcohol in the universe."
 	icon_state = "inspiration"
+
+/datum/perk/neat
+	name = "Neat"
+	desc = "You're used to see blood and filth in all its forms. Your motto: a clean ship is the first step to enlightenment. \
+			This perk reduces the total sanity damage you can take from what is happening around you. \
+			You can regain sanity by cleaning."
+	icon_state = "neat" // https://game-icons.net/1x1/delapouite/broom.html
+
+/datum/perk/neat/assign(mob/living/carbon/human/H)
+	..()
+	if(holder)
+		holder.sanity.view_damage_threshold += 20
+
+/datum/perk/neat/remove()
+	if(holder)
+		holder.sanity.view_damage_threshold -= 20
+	..()
+
+/datum/perk/greenthumb
+	name = "Green Thumb"
+	desc = "After growing plants for years you have become a botanical expert. You can get all information about plants, from stats \
+	        to harvest reagents, by examining them. Gathering plants relaxes you and thus restores sanity."
+	icon_state = "greenthumb" // https://game-icons.net/1x1/delapouite/farmer.html
+
+	var/obj/item/device/scanner/plant/virtual_scanner = new
+
+/datum/perk/greenthumb/assign(mob/living/carbon/human/H)
+	..()
+	virtual_scanner.is_virtual = TRUE
+
+/datum/perk/job/club
+	name = "Raising the bar"
+	desc = "You know how to mix drinks and change lives. People near you recover sanity."
+	icon_state = "inspiration"
+
+/datum/perk/job/club/assign(mob/living/carbon/human/H)
+	..()
+	if(holder)
+		holder.sanity_damage -= 2
+
+/datum/perk/job/club/remove()
+	if(holder)
+		holder.sanity_damage += 2
+	..()
+
+/datum/perk/channeling
+	name = "Channeling"
+	desc = "You know how to channel spiritual energy during rituals. You gain additional skill points \
+			during group rituals and have an increased regeneration of cruciform energy."
+	icon_state = "channeling"

@@ -8,6 +8,7 @@
 	var/list/hud_list[10]
 	var/embedded_flag	  //To check if we've need to roll for damage on movement while an item is imbedded in us.
 	var/obj/item/weapon/rig/wearing_rig // This is very not good, but it's much much better than calling get_rig() every update_lying_buckled_and_verb_status() call.
+	var/obj/item/weapon/gun/using_scope // This is not very good either, because I've copied it. Sorry.
 
 /mob/living/carbon/human/New(var/new_loc, var/new_species)
 
@@ -36,6 +37,7 @@
 	hud_list[IMPTRACK_HUD]    = image('icons/mob/hud.dmi', src, "hudblank",     ON_MOB_HUD_LAYER)
 	hud_list[SPECIALROLE_HUD] = image('icons/mob/hud.dmi', src, "hudblank",     ON_MOB_HUD_LAYER)
 	hud_list[STATUS_HUD_OOC]  = image('icons/mob/hud.dmi', src, "hudhealthy",   ON_MOB_HUD_LAYER)
+	hud_list[EXCELSIOR_HUD]   = image('icons/mob/hud.dmi', src, "hudblank",     ON_MOB_HUD_LAYER)
 
 
 
@@ -87,11 +89,11 @@
 			stat(null, "Suit charge: [cell_status]")
 
 		var/chemvessel_efficiency = get_organ_efficiency(OP_CHEMICALS)
-		if(chemvessel_efficiency)
+		if(chemvessel_efficiency > 1)
 			stat("Chemical Storage", "[carrion_stored_chemicals]/[round(0.5 * chemvessel_efficiency)]")
 
 		var/maw_efficiency = get_organ_efficiency(OP_MAW)
-		if(maw_efficiency > 0)
+		if(maw_efficiency > 1)
 			stat("Gnawing hunger", "[carrion_hunger]/[round(maw_efficiency/10)]")
 
 		var/obj/item/weapon/implant/core_implant/cruciform/C = get_core_implant(/obj/item/weapon/implant/core_implant/cruciform)
@@ -101,7 +103,7 @@
 /mob/living/carbon/human/ex_act(severity)
 	if(!blinded)
 		if (HUDtech.Find("flash"))
-			flick("flash", HUDtech["flash"])
+			FLICK("flash", HUDtech["flash"])
 
 	var/shielded = 0
 	var/b_loss
@@ -594,7 +596,7 @@ var/list/rank_prefix = list(\
 		return FLASH_PROTECTION_MAJOR
 
 	var/eye_efficiency = get_organ_efficiency(OP_EYES)
-	if(eye_efficiency <= 0)
+	if(eye_efficiency <= 1)
 		return FLASH_PROTECTION_MAJOR
 
 	return flash_protection
@@ -1007,7 +1009,7 @@ var/list/rank_prefix = list(\
 	var/list/data = list()
 
 	data["style"] = get_total_style()
-	data["min_style"] = MIN_HUMAN_SYLE
+	data["min_style"] = MIN_HUMAN_STYLE
 	data["max_style"] = MAX_HUMAN_STYLE
 	data["sanity"] = sanity.level
 	data["sanity_max_level"] = sanity.max_level
@@ -1015,6 +1017,12 @@ var/list/rank_prefix = list(\
 	data["desires"] = sanity.desires
 	data["rest"] = sanity.resting
 	data["insight_rest"] = sanity.insight_rest
+
+	var/obj/item/weapon/implant/core_implant/cruciform/C = get_core_implant(/obj/item/weapon/implant/core_implant/cruciform)
+	if(C)
+		data["cruciform"] = TRUE
+		data["righteous_life"] = C.righteous_life
+
 	return data
 
 /mob/living/carbon/human/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1, state = GLOB.default_state)
@@ -1184,9 +1192,9 @@ var/list/rank_prefix = list(\
 		for(var/tag in species.has_limbs)
 			BM = Pref.get_modification(tag)
 			var/datum/organ_description/OD = species.has_limbs[tag]
-			var/datum/body_modification/PBM = Pref.get_modification(OD.parent_organ_base)
-			if(PBM && (PBM.nature == MODIFICATION_SILICON || PBM.nature == MODIFICATION_REMOVED))
-				BM = PBM
+//			var/datum/body_modification/PBM = Pref.get_modification(OD.parent_organ_base)
+//			if(PBM && (PBM.nature == MODIFICATION_SILICON || PBM.nature == MODIFICATION_REMOVED))
+//				BM = PBM
 			if(BM.is_allowed(tag, Pref, src))
 				BM.create_organ(src, OD, Pref.modifications_colors[tag])
 			else
@@ -1217,6 +1225,8 @@ var/list/rank_prefix = list(\
 			var/obj/item/I = organs_by_name[limb_tag]
 			if(I && I.type == OD.default_type)
 				continue
+			else if(I)
+				qdel(I)
 			OD.create_organ(src)
 
 		for(var/organ_tag in species.has_process)
@@ -1224,6 +1234,8 @@ var/list/rank_prefix = list(\
 			var/obj/item/I = random_organ_by_process(organ_tag)
 			if(I && I.type == organ_type)
 				continue
+			else if(I)
+				qdel(I)
 			new organ_type(src)
 
 		if(checkprefcruciform)
@@ -1526,9 +1538,9 @@ var/list/rank_prefix = list(\
 /mob/living/carbon/human/should_have_process(var/organ_check)
 
 	var/obj/item/organ/external/affecting
-	if(organ_check in list(OP_HEART, OP_LUNGS))
+	if(organ_check in list(OP_HEART, OP_LUNGS, OP_STOMACH))
 		affecting = organs_by_name[BP_CHEST]
-	else if(organ_check in list(OP_LIVER, OP_KIDNEYS))
+	else if(organ_check in list(OP_LIVER, OP_KIDNEYS, OP_KIDNEY_LEFT, OP_KIDNEY_RIGHT))
 		affecting = organs_by_name[BP_GROIN]
 
 	if(affecting && (BP_IS_ROBOTIC(affecting)))
@@ -1594,3 +1606,40 @@ var/list/rank_prefix = list(\
 /mob/living/carbon/human/proc/set_remoteview(var/atom/A)
 	remoteview_target = A
 	reset_view(A)
+
+/mob/living/carbon/human/proc/resuscitate()
+	var/obj/item/organ/internal/heart_organ = random_organ_by_process(OP_HEART)
+	var/obj/item/organ/internal/brain_organ = random_organ_by_process(BP_BRAIN)
+
+	if(!is_asystole() && !(heart_organ && brain_organ) || (heart_organ.is_broken() || brain_organ.is_broken()))
+		return 0
+
+	if(world.time >= (timeofdeath + NECROZTIME))
+		return 0
+
+	var/oxyLoss = getOxyLoss()
+	if(oxyLoss > 20)
+		setOxyLoss(20)
+
+	if(health <= (HEALTH_THRESHOLD_DEAD - oxyLoss))
+		visible_message(SPAN_WARNING("\The [src] twitches a bit, but their body is too damaged to sustain life!"))
+		timeofdeath = 0
+		return 0
+
+	visible_message(SPAN_NOTICE("\The [src] twitches a bit as their heart restarts!"))
+	pulse = PULSE_NORM
+	handle_pulse()
+	timeofdeath = 0
+	stat = UNCONSCIOUS
+	jitteriness += 3 SECONDS
+	updatehealth()
+	switch_from_dead_to_living_mob_list()
+	if(mind)
+		for(var/mob/observer/ghost/G in GLOB.player_list)
+			if(G.can_reenter_corpse && G.mind == mind)
+				if(alert("Do you want to enter your body?","Resuscitate","OH YES","No, I'm autist") == "OH YES")
+					G.reenter_corpse()
+					break
+				else
+					break
+	return 1

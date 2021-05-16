@@ -294,7 +294,7 @@
 		if(prob(5) || dose == metabolism) //dose == metabolism is a very hacky way of forcing the message the first time this procs
 			to_chat(M, discomfort_message)
 	else
-		M.apply_effect(agony_amount, AGONY, 0)
+		M.adjustHalLoss(agony_amount)
 		if(prob(5))
 			M.custom_emote(2, "[pick("dry heaves!","coughs!","splutters!")]")
 			to_chat(M, SPAN_DANGER("You feel like your insides are burning!"))
@@ -373,7 +373,7 @@
 	if(dose == metabolism)
 		to_chat(M, SPAN_DANGER("You feel like your insides are burning!"))
 	else
-		M.apply_effect(4, AGONY, 0)
+		M.adjustHalLoss(4)
 		if(prob(5))
 			M.visible_message("<span class='warning'>[M] [pick("dry heaves!","coughs!","splutters!")]</span>", SPAN_DANGER("You feel like your insides are burning!"))
 	if(isslime(M))
@@ -682,7 +682,7 @@
 	// Coffee is really bad for you with busted kidneys.
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
-		var/obj/item/organ/internal/kidneys/K = H.random_organ_by_process(OP_KIDNEYS)
+		var/obj/item/organ/internal/kidney/K = H.random_organ_by_process(OP_KIDNEYS)
 		if(istype(K))
 			if(K.is_bruised())
 				M.adjustToxLoss(0.1)

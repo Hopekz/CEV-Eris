@@ -76,8 +76,6 @@
 	var/death_sound
 	var/death_message = "seizes up and falls limp, their eyes dead and lifeless..."
 	var/knockout_message = "has been knocked unconscious!"
-	var/halloss_message = "slumps to the ground, too weak to continue fighting."
-	var/halloss_message_self = "You're in too much pain to keep going..."
 
 	// Environment tolerance/life processes vars.
 	var/reagent_tag                                   //Used for metabolizing reagents.
@@ -136,8 +134,10 @@
 	var/list/has_process = list(    // which required-process checks are conducted and defalut organs for them.
 		OP_HEART =    /obj/item/organ/internal/heart,
 		OP_LUNGS =    /obj/item/organ/internal/lungs,
+		OP_STOMACH =  /obj/item/organ/internal/stomach,
 		OP_LIVER =    /obj/item/organ/internal/liver,
-		OP_KIDNEYS =  /obj/item/organ/internal/kidneys,
+		OP_KIDNEY_LEFT =  /obj/item/organ/internal/kidney/left,
+		OP_KIDNEY_RIGHT = /obj/item/organ/internal/kidney/right,
 		BP_BRAIN =    /obj/item/organ/internal/brain,
 		OP_APPENDIX = /obj/item/organ/internal/appendix,
 		OP_EYES =     /obj/item/organ/internal/eyes
