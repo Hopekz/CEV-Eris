@@ -964,7 +964,7 @@
 	contraband = list(/obj/item/weapon/reagent_containers/food/drinks/ice = 10)
 	prices = list(/obj/item/weapon/reagent_containers/food/drinks/coffee = 3, /obj/item/weapon/reagent_containers/food/drinks/tea/black = 3,
 					/obj/item/weapon/reagent_containers/food/drinks/tea/green = 3, /obj/item/weapon/reagent_containers/food/drinks/h_chocolate = 3)
-
+	vendor_department = DEPARTMENT_CIVILIAN
 
 
 
@@ -982,7 +982,7 @@
 					/obj/item/weapon/reagent_containers/food/snacks/sosjerky = 45,/obj/item/weapon/reagent_containers/food/snacks/no_raisin = 40,/obj/item/weapon/reagent_containers/food/snacks/spacetwinkie = 40,
 					/obj/item/weapon/reagent_containers/food/snacks/cheesiehonkers = 40, /obj/item/weapon/reagent_containers/food/snacks/tastybread = 50,
 					/obj/item/weapon/reagent_containers/food/snacks/syndicake = 60)
-
+	vendor_department = DEPARTMENT_CIVILIAN
 
 /obj/machinery/vending/weapon_machine
 	name = "Frozen Star Guns&Ammo"
@@ -1074,6 +1074,7 @@
 					/obj/item/weapon/reagent_containers/food/drinks/cans/iced_tea = 30,/obj/item/weapon/reagent_containers/food/drinks/cans/grape_juice = 30,
 					/obj/item/weapon/reagent_containers/food/drinks/cans/thirteenloko = 50, /obj/item/weapon/reagent_containers/food/snacks/liquidfood = 60)
 	idle_power_usage = 211 //refrigerator - believe it or not, this is actually the average power consumption of a refrigerated vending machine according to NRCan.
+	vendor_department = DEPARTMENT_CIVILIAN
 
 /obj/machinery/vending/cigarette
 	name = "Cigarette machine" //OCD had to be uppercase to look nice with the new formating
@@ -1124,7 +1125,7 @@
 					/obj/item/weapon/reagent_containers/glass/bottle/stoxin = 4,/obj/item/weapon/reagent_containers/glass/bottle/toxin = 4,
 					/obj/item/weapon/reagent_containers/syringe/spaceacillin = 8,/obj/item/weapon/reagent_containers/syringe = 12,
 					/obj/item/device/scanner/health = 5,/obj/item/weapon/reagent_containers/glass/beaker = 4, /obj/item/weapon/reagent_containers/dropper = 2,
-					/obj/item/stack/medical/advanced/bruise_pack = 3, /obj/item/stack/medical/advanced/ointment = 3, /obj/item/stack/medical/splint = 2)
+					/obj/item/stack/medical/advanced/bruise_pack = 3, /obj/item/stack/medical/advanced/ointment = 3, /obj/item/stack/medical/splint = 6, /obj/item/bodybag/cryobag = 2)
 	contraband = list(/obj/item/weapon/reagent_containers/pill/tox = 3,/obj/item/weapon/reagent_containers/pill/stox = 4,/obj/item/weapon/reagent_containers/pill/antitox = 6)
 	idle_power_usage = 211 //refrigerator - believe it or not, this is actually the average power consumption of a refrigerated vending machine according to NRCan.
 	auto_price = FALSE
@@ -1152,12 +1153,27 @@
 	products = list(
 		/obj/item/stack/medical/bruise_pack = 2, /obj/item/stack/medical/ointment = 2,
 		/obj/item/weapon/reagent_containers/hypospray/autoinjector = 4,
-		/obj/item/device/scanner/health = 1
+		/obj/item/device/scanner/health = 1,
+		/obj/item/stack/medical/splint = 6
 		)
 	contraband = list(
 		/obj/item/weapon/reagent_containers/syringe/antitoxin = 2,
 		/obj/item/weapon/reagent_containers/syringe/spaceacillin = 2,
 		/obj/item/weapon/reagent_containers/pill/tox = 1
+		)
+	prices = list(
+		/obj/item/device/scanner/health = 50,
+
+		/obj/item/stack/medical/bruise_pack = 100, /obj/item/stack/medical/ointment = 100,
+		/obj/item/device/scanner/health = 50,
+
+		/obj/item/weapon/reagent_containers/hypospray/autoinjector = 100,
+
+		/obj/item/stack/medical/splint = 200,
+
+		/obj/item/weapon/reagent_containers/syringe/antitoxin = 200,
+		/obj/item/weapon/reagent_containers/syringe/spaceacillin = 200,
+		/obj/item/weapon/reagent_containers/pill/tox = 100
 		)
 	auto_price = FALSE
 
@@ -1174,7 +1190,8 @@
 		/obj/item/weapon/reagent_containers/hypospray/autoinjector/spaceacillin = 1, /obj/item/weapon/reagent_containers/syringe/spaceacillin = 1,
 
 		/obj/item/weapon/implantcase/death_alarm = 2,
-		/obj/item/weapon/implanter = 2
+		/obj/item/weapon/implanter = 2,
+		/obj/item/stack/medical/splint = 6
 		)
 	contraband = list(
 		/obj/item/weapon/reagent_containers/hypospray/autoinjector/hyperzine = 2,
@@ -1186,6 +1203,7 @@
 		/obj/item/stack/medical/bruise_pack = 100, /obj/item/stack/medical/ointment = 100,
 		/obj/item/stack/medical/advanced/bruise_pack = 200, /obj/item/stack/medical/advanced/ointment = 200,
 		/obj/item/stack/nanopaste = 1000,
+		/obj/item/stack/medical/splint = 200,
 
 		/obj/item/weapon/reagent_containers/hypospray/autoinjector/antitoxin = 100, /obj/item/weapon/reagent_containers/syringe/antitoxin = 200,
 		/obj/item/weapon/reagent_containers/hypospray/autoinjector/tricordrazine = 150, /obj/item/weapon/reagent_containers/syringe/tricordrazine = 300,
@@ -1229,7 +1247,8 @@
 					/obj/item/weapon/storage/box/evidence = 2,
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/security = 2,
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/armor/ih = 2,
-					/obj/item/weapon/computer_hardware/hard_drive/portable/design/armor/ih/bulletproof = 1)
+					/obj/item/weapon/computer_hardware/hard_drive/portable/design/armor/ih/bulletproof = 1,
+					/obj/item/weapon/storage/ration_pack/ihr = 3)
 	contraband = list(/obj/item/weapon/tool/knife/tacknife = 4,/obj/item/weapon/reagent_containers/food/snacks/donut/normal = 12)
 	auto_price = FALSE
 
@@ -1429,6 +1448,7 @@
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/security = 5,
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/armor/generic = 5,
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/guns/fs_cheap_guns = 5,
+					/obj/item/weapon/computer_hardware/hard_drive/portable/design/guns/fs_slaught_o_matic = 5,
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/nonlethal_ammo = 10,
 					/obj/item/weapon/electronics/circuitboard/autolathe = 3,
 					/obj/item/weapon/electronics/circuitboard/vending = 10)
@@ -1447,6 +1467,7 @@
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/security = 600,
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/armor/generic = 800,
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/guns/fs_cheap_guns = 3000,
+					/obj/item/weapon/computer_hardware/hard_drive/portable/design/guns/fs_slaught_o_matic = 600,
 					/obj/item/weapon/computer_hardware/hard_drive/portable/design/nonlethal_ammo = 700,
 					/obj/item/weapon/electronics/circuitboard/autolathe = 700,
 					/obj/item/weapon/electronics/circuitboard/autolathe_disk_cloner = 1000,
@@ -1465,8 +1486,8 @@
 					/obj/item/weapon/storage/deferred/crate/uniform_black = 4,
 					/obj/item/weapon/storage/deferred/crate/uniform_flak  = 2,
 					/obj/item/weapon/storage/deferred/crate/uniform_light = 2,
-					/obj/item/weapon/gun/projectile/kovacs = 5,
-					/obj/item/ammo_magazine/srifle = 20,
+					/obj/item/weapon/gun/projectile/kovacs = 2,
+					/obj/item/ammo_magazine/srifle = 6,
 					/obj/item/weapon/gun/projectile/boltgun/serbian = 10,
 					/obj/item/ammo_magazine/ammobox/lrifle_small = 30,
 					/obj/item/weapon/storage/ration_pack = 10,
@@ -1479,13 +1500,14 @@
 					/obj/item/weapon/storage/deferred/crate/uniform_black = 2000,
 					/obj/item/weapon/storage/deferred/crate/uniform_flak  = 2200,
 					/obj/item/weapon/storage/deferred/crate/uniform_light = 1800,
+					/obj/item/weapon/gun/projectile/kovacs = 3000,
 					/obj/item/ammo_magazine/ammobox/lrifle_small = 400,
 					/obj/item/ammo_magazine/srifle = 200,
 					/obj/item/weapon/storage/ration_pack = 800,
 					/obj/item/clothing/mask/balaclava = 100
 					)
 	idle_power_usage = 211
-	vendor_department = DEPARTMENT_CIVILIAN
+	vendor_department = DEPARTMENT_OFFSHIP
 
 /obj/machinery/vending/billomat
 	name = "Bill Trustworthy's Discount Guns and Enterprising Detritus"
@@ -1500,14 +1522,18 @@
 					/obj/item/ammo_magazine/smg = 12,
 					/obj/item/part/armor = 20,
 					/obj/item/part/gun = 20,
-					/obj/item/weapon/gun/projectile/automatic/ak47/fs/brush = 4,
+					/obj/item/weapon/gun/projectile/automatic/ak47/fs = 4,
 					/obj/item/weapon/gun/energy/retro = 4,
 					/obj/item/weapon/gun/projectile/mk58  = 2,
 					/obj/item/weapon/gun/projectile/mk58/wood = 2,
 					/obj/item/weapon/gun/projectile/revolver/deckard = 2,
 					/obj/item/weapon/gun/projectile/automatic/z8 = 4,
 					/obj/item/weapon/gun/projectile/automatic/molly = 4,
-					/obj/item/weapon/gun/projectile/shotgun/pump/gladstone = 4
+					/obj/item/weapon/gun/projectile/shotgun/pump/gladstone = 4,
+					/obj/item/weapon/storage/deferred/crate/clown_crime = 2,
+					/obj/item/weapon/storage/deferred/crate/clown_crime/wolf = 2,
+					/obj/item/weapon/storage/deferred/crate/clown_crime/hoxton = 2,
+					/obj/item/weapon/storage/deferred/crate/clown_crime/chains = 2
 					)
 	contraband = list(/obj/item/weapon/gun/projectile/mandella = 4,/obj/item/ammo_magazine/cspistol = 12)
 	prices = list(
@@ -1518,7 +1544,7 @@
 					/obj/item/ammo_magazine/smg = 400,
 					/obj/item/part/armor = 700,
 					/obj/item/part/gun = 700,
-					/obj/item/weapon/gun/projectile/automatic/ak47/fs/brush = 3200,
+					/obj/item/weapon/gun/projectile/automatic/ak47/fs = 3200,
 					/obj/item/weapon/gun/energy/retro = 2000,
 					/obj/item/weapon/gun/projectile/mk58  = 1500,
 					/obj/item/weapon/gun/projectile/mk58/wood = 1500,
@@ -1526,10 +1552,14 @@
 					/obj/item/weapon/gun/projectile/revolver/deckard = 3600,
 					/obj/item/weapon/gun/projectile/automatic/z8 = 3500,
 					/obj/item/weapon/gun/projectile/automatic/molly = 2000,
-					/obj/item/weapon/gun/projectile/shotgun/pump/gladstone = 2200
+					/obj/item/weapon/gun/projectile/shotgun/pump/gladstone = 2200,
+					/obj/item/weapon/storage/deferred/crate/clown_crime = 1800,
+					/obj/item/weapon/storage/deferred/crate/clown_crime/wolf = 1800,
+					/obj/item/weapon/storage/deferred/crate/clown_crime/hoxton = 1800,
+					/obj/item/weapon/storage/deferred/crate/clown_crime/chains = 1800
 					)
 	idle_power_usage = 211
-	vendor_department = DEPARTMENT_CIVILIAN
+	vendor_department = DEPARTMENT_OFFSHIP
 
 /obj/machinery/vending/custom
 	name = "Custom Vendomat"
