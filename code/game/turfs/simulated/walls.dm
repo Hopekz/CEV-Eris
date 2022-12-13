@@ -1,6 +1,8 @@
 /turf/simulated/wall
 	name = "wall"
 	desc = "A huge chunk of metal used to seperate rooms."
+	description_info = "Can be deconstructed by welding"
+	description_antag = "Deconstructing these will leave fingerprints. C4 or Thermite leave none"
 	icon = 'icons/turf/wall_masks.dmi'
 	icon_state = "generic"
 	layer = CLOSED_TURF_LAYER
@@ -215,6 +217,8 @@
 	else if(istype(Proj,/obj/item/projectile/ion))
 		burn(500)
 
+	Proj.on_hit(src)
+
 	if(Proj.can_ricochet && proj_damage != 0 && (src.x != Proj.starting.x) && (src.y != Proj.starting.y))
 		var/ricochetchance = 1
 		if(proj_damage <= 60)
@@ -222,7 +226,7 @@
 			ricochetchance = min(ricochetchance * ricochetchance, 100)
 		// here it is multiplied by 1/2 temporally, changes will be required when new wall system gets implemented
 		ricochetchance = round(ricochetchance * projectile_reflection(Proj, TRUE) / 2)
-		
+
 		ricochetchance *= Proj.ricochet_ability
 		ricochetchance = min(max(ricochetchance, 0), 100)
 		if(prob(ricochetchance))
@@ -230,9 +234,10 @@
 			var/damagediff = round(proj_damage / 2 + proj_damage * ricochetchance / 200) // projectile loses up to 50% of its damage when it ricochets, depending on situation
 			Proj.damage_types[BRUTE] = round(Proj.damage_types[BRUTE] / 2 + Proj.damage_types[BRUTE] * ricochetchance / 200)
 			Proj.damage_types[BURN] = round(Proj.damage_types[BURN] / 2 + Proj.damage_types[BURN] * ricochetchance / 200)
+			Proj.def_zone = ran_zone()
+			projectile_reflection(Proj)		// Reflect before damage, runtimes occur in some cases if damage happens first.
+			visible_message("<span class='danger'>\The [Proj] ricochets off the surface of wall!</span>")
 			take_damage(min(proj_damage - damagediff, 100))
-			visible_message("<span class='danger'>The [Proj] ricochets from the surface of wall!</span>")
-			projectile_reflection(Proj)
 			new /obj/effect/sparks(get_turf(Proj))
 			return PROJECTILE_CONTINUE // complete projectile permutation
 
@@ -386,6 +391,8 @@
 			take_damage(rand(200, 500))
 		if(3)
 			take_damage(rand(90, 250))
+		if(4)
+			take_damage(rand(40, 100))
 		else
 	return
 

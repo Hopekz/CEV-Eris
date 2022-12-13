@@ -3,6 +3,8 @@ GLOBAL_LIST_EMPTY(wedge_icon_cache)
 /obj/machinery/door/airlock
 	name = "Airlock"
 	icon = 'icons/obj/doors/Doorint.dmi'
+	description_info = "Can be forced to remain open by leaving in a decently sized tool such as a wrench or crowbar. Can also be deconstructed by cutting all wires other than the bolt wire, welding, and then trying to crowbar it with its panel open. The bolts can be forced upwards if the door is unpowered with a hammering tool"
+	description_antag = "Can have signalers attached to the wires. Letting you get alerts whenever someone uses a door"
 	icon_state = "door_closed"
 	power_channel = STATIC_ENVIRON
 
@@ -31,7 +33,7 @@ GLOBAL_LIST_EMPTY(wedge_icon_cache)
 	autoclose = 1
 	var/assembly_type = /obj/structure/door_assembly
 	var/mineral
-	var/justzap = 0
+	var/last_zap // Timestamp
 	var/safe = 1
 	normalspeed = 1
 	var/obj/item/electronics/airlock/electronics
@@ -426,23 +428,11 @@ There are 9 wires.
 
 
 /obj/machinery/door/airlock/bumpopen(mob/living/user) //Airlocks now zap you when you 'bump' them open when they're electrified. --NeoFite
-	if(!issilicon(usr))
-		if(src.isElectrified())
-			if(!src.justzap)
-				if(src.shock(user, 100))
-					src.justzap = 1
-					spawn (10)
-						src.justzap = 0
-					return FALSE
-			else /*if(src.justzap)*/
-				return FALSE
-		else if(prob(10) && src.operating == 0)
-			var/mob/living/carbon/C = user
-			if(istype(C) && C.hallucination_power > 25)
-				to_chat(user, "<span class='danger'>You feel a powerful shock course through your body!</span>")
-				user.adjustHalLoss(10)
-				user.Stun(10)
-				return FALSE
+	if(!issilicon(user) && isElectrified())
+		if(!last_zap || (last_zap + 1 SECOND) < world.time)
+			if(shock(user, 100))
+				last_zap = world.time
+			return FALSE
 	..()
 
 /obj/machinery/door/airlock/proc/isElectrified()
@@ -645,7 +635,7 @@ There are 9 wires.
 	var/cache_string = "[wedged_item.icon]||[wedged_item.icon_state]||[wedged_item.overlays.len]||[wedged_item.underlays.len]"
 
 	if(!GLOB.wedge_icon_cache[cache_string])
-		var/icon/I = getFlatIcon(wedged_item, SOUTH, always_use_defdir = TRUE)
+		var/icon/I = getFlatIcon(wedged_item, SOUTH)
 
 		// #define COOL_LOOKING_SHIFT_USING_CROWBAR_RIGHT 14, #define COOL_LOOKING_SHIFT_USING_CROWBAR_DOWN 6 - throw a rock at me if this looks less magic.
 		I.Shift(SOUTH, 6) // These numbers I got by sticking the crowbar in and looking what will look good.
@@ -657,7 +647,7 @@ There are 9 wires.
 	else
 		underlays += GLOB.wedge_icon_cache[cache_string]
 
-/obj/machinery/door/airlock/on_update_icon()
+/obj/machinery/door/airlock/update_icon()
 	set_light(0)
 	if(overlays.len)
 		cut_overlays()
@@ -665,27 +655,27 @@ There are 9 wires.
 		underlays.Cut()
 	if(density)
 		if(locked && lights && arePowerSystemsOn())
-			SetIconState("door_locked")
+			icon_state = "door_locked"
 			set_light(1.5, 0.5, COLOR_RED_LIGHT)
 		else
-			SetIconState("door_closed")
+			icon_state = "door_closed"
 		if(p_open || welded)
-			set_overlays(list())
+			overlays = list()
 			if(p_open)
-				add_overlays(image(icon, "panel_open"))
+				overlays += image(icon, "panel_open")
 			if (!(stat & NOPOWER))
 				if(stat & BROKEN)
-					add_overlays(image(icon, "sparks_broken"))
+					overlays += image(icon, "sparks_broken")
 				else if (health < maxhealth * 3/4)
-					add_overlays(image(icon, "sparks_damaged"))
+					overlays += image(icon, "sparks_damaged")
 			if(welded)
-				add_overlays(image(icon, "welded"))
+				overlays += image(icon, "welded")
 		else if (health < maxhealth * 3/4 && !(stat & NOPOWER))
-			add_overlays(image(icon, "sparks_damaged"))
+			overlays += image(icon, "sparks_damaged")
 	else
-		SetIconState("door_open")
+		icon_state = "door_open"
 		if((stat & BROKEN) && !(stat & NOPOWER))
-			add_overlays(image(icon, "sparks_open"))
+			overlays += image(icon, "sparks_open")
 	if(wedged_item)
 		generate_wedge_overlay()
 
@@ -693,34 +683,36 @@ There are 9 wires.
 	switch(animation)
 		if("opening")
 			if(overlays.len)
-				cut_overlays()
+				overlays.Cut()
 			if(p_open)
-				flicker("o_door_opening")
+				flick("o_door_opening", src)  //can not use flick due to BYOND bug updating overlays right before flicking
+				update_icon()
 			else
-				flicker("door_opening")
-			update_icon()
+				flick("door_opening", src)//[stat ? "_stat":]
+				update_icon()
 		if("closing")
 			if(overlays.len)
-				cut_overlays()
+				overlays.Cut()
 			if(p_open)
-				flicker("o_door_closing")
+				flick("o_door_closing", src)
+				update_icon()
 			else
-				flicker("door_closing")
-			update_icon()
+				flick("door_closing", src)
+				update_icon()
 		if("spark")
 			if(density)
-				flicker("door_spark")
+				flick("door_spark", src)
 		if("deny")
-			if(density && arePowerSystemsOn())
-				flicker("door_deny")
-				playsound(loc, 'sound/machines/Custom_deny.ogg', 50, 1, -2)
+			if(density && src.arePowerSystemsOn())
+				flick("door_deny", src)
+				playsound(src.loc, 'sound/machines/Custom_deny.ogg', 50, 1, -2)
 	return
 
 /obj/machinery/door/airlock/attack_ai(mob/user as mob)
 	if(!isblitzshell(user))
-		ui_interact(user)
+		nano_ui_interact(user)
 
-/obj/machinery/door/airlock/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS, var/datum/topic_state/state = GLOB.default_state)
+/obj/machinery/door/airlock/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS, var/datum/nano_topic_state/state = GLOB.default_state)
 	var/data[0]
 
 	data["main_power_loss"]		= round(main_power_lost_until 	> 0 ? max(main_power_lost_until - world.time,	0) / 10 : main_power_lost_until,	1)
@@ -970,7 +962,7 @@ There are 9 wires.
 		hit(user, I)
 		return
 
-	var/tool_type = I.get_tool_type(user, list(QUALITY_PRYING, QUALITY_SCREW_DRIVING, QUALITY_WELDING, p_open ? QUALITY_PULSING : null), src)
+	var/tool_type = I.get_tool_type(user, list(QUALITY_PRYING, QUALITY_SCREW_DRIVING, QUALITY_WELDING, p_open ? QUALITY_PULSING : null, p_open ? QUALITY_HAMMERING : null), src)
 	switch(tool_type)
 		if(QUALITY_PRYING)
 			if(!repairing)
@@ -1039,6 +1031,17 @@ There are 9 wires.
 			else
 				..()
 			return
+
+		if(QUALITY_HAMMERING)
+			if(stat & NOPOWER && locked)
+				to_chat(user, SPAN_NOTICE("You start hammering the bolts into the unlocked position"))
+				// long time and high chance to fail.
+				if(I.use_tool(user, src, WORKTIME_LONG, tool_type, FAILCHANCE_VERY_HARD, required_stat = STAT_MEC))
+					to_chat(user, SPAN_NOTICE("You unbolt the door."))
+					locked = FALSE
+			else
+				to_chat(user, SPAN_NOTICE("You can\'t hammer away the bolts if the door is powered or not bolted."))
+				return
 
 
 		if(ABORT_CHECK)

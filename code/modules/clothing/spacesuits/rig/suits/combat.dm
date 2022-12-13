@@ -8,19 +8,22 @@
 	icon_state = "security_rig"
 	suit_type = "combat hardsuit"
 	armor = list(
-		melee = 45,
-		bullet = 45,
-		energy = 45,
+		melee = 10,
+		bullet = 10,
+		energy = 10,
 		bomb = 50,
 		bio = 100,
 		rad = 50
 	)
-	slowdown = 1
+	ablative_max = 12
+
 	drain = 4
-	offline_slowdown = 3
 	offline_vision_restriction = 1
 	rarity_value = 20
+	price_tag = 500
 	helm_type = /obj/item/clothing/head/space/rig/combat
+	stiffness = 0
+	obscuration = 0
 
 /obj/item/rig/combat/equipped
 	rarity_value = 40
@@ -31,7 +34,8 @@
 		/obj/item/rig_module/ai_container,
 		/obj/item/rig_module/power_sink,
 		/obj/item/rig_module/electrowarfare_suite,
-		/obj/item/rig_module/chem_dispenser/combat
+		/obj/item/rig_module/modular_injector/combat,
+		/obj/item/rig_module/storage
 		)
 
 //Ironhammer rig suit
@@ -65,16 +69,17 @@
 	desc = "A Security hardsuit designed for prolonged EVA in dangerous environments."
 	icon_state = "hazard_rig"
 	armor = list(
-		melee = 35,
-		bullet = 35,
-		energy = 35,
+		melee = 12,
+		bullet = 9,
+		energy = 9,
 		bomb = 90,
 		bio = 100,
 		rad = 100
 	)
-	slowdown = 1
+	ablative_max = 8
+	ablation = ABLATION_DURABLE // Lasts longer than most rigs
+
 	drain = 4
-	offline_slowdown = 3
 	offline_vision_restriction = 1
 
 	helm_type = /obj/item/clothing/head/space/rig/hazard
@@ -88,5 +93,6 @@
 		/obj/item/rig_module/vision/sechud,
 		/obj/item/rig_module/maneuvering_jets,
 		/obj/item/rig_module/grenade_launcher,
-		/obj/item/rig_module/mounted/taser
+		/obj/item/rig_module/mounted/taser,
+		/obj/item/rig_module/storage
 		)

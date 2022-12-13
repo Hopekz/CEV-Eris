@@ -162,7 +162,7 @@
 
 var/list/turret_icons
 
-/obj/machinery/porta_turret/on_update_icon()
+/obj/machinery/porta_turret/update_icon()
 	if(!turret_icons)
 		turret_icons = list()
 		turret_icons["open"] = image(icon, "openTurretCover")
@@ -200,9 +200,9 @@ var/list/turret_icons
 	if(isLocked(user))
 		return
 
-	ui_interact(user)
+	nano_ui_interact(user)
 
-/obj/machinery/porta_turret/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/porta_turret/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	var/data[0]
 	data["access"] = !isLocked(user)
 	data["locked"] = locked
@@ -517,6 +517,8 @@ var/list/turret_icons
 			take_damage(rand(80,170))
 		if (3)
 			take_damage(rand(50,120))
+		if (4)
+			take_damage(rand(25,60))
 
 /obj/machinery/porta_turret/proc/die()	//called when the turret dies, ie, health <= 0
 	health = 0
@@ -655,7 +657,7 @@ var/list/turret_icons
 
 	var/atom/flick_holder = new /atom/movable/porta_turret_cover(loc)
 	flick_holder.layer = layer + 0.1
-	FLICK("popup", flick_holder)
+	flick("popup", flick_holder)
 	sleep(10)
 	qdel(flick_holder)
 
@@ -675,7 +677,7 @@ var/list/turret_icons
 
 	var/atom/flick_holder = new /atom/movable/porta_turret_cover(loc)
 	flick_holder.layer = layer + 0.1
-	FLICK("popdown", flick_holder)
+	flick("popdown", flick_holder)
 	sleep(10)
 	qdel(flick_holder)
 

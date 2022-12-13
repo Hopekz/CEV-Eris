@@ -63,7 +63,7 @@
 	coolant_reagents_purity["adminordrazine"] = 2
 
 /obj/machinery/radiocarbon_spectrometer/attack_hand(var/mob/user as mob)
-	ui_interact(user)
+	nano_ui_interact(user)
 
 /obj/machinery/radiocarbon_spectrometer/attackby(var/obj/I as obj, var/mob/user as mob)
 	if(scanning)
@@ -120,7 +120,7 @@
 	if(total_purity && fresh_coolant)
 		coolant_purity = total_purity / fresh_coolant
 
-/obj/machinery/radiocarbon_spectrometer/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/radiocarbon_spectrometer/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 
 	if(user.stat)
 		return
@@ -271,7 +271,7 @@
 		var/obj/item/paper/P = new(src)
 		P.name = "[src] report #[++report_num]: [scanned_item.name]"
 		P.stamped = list(/obj/item/stamp)
-		P.set_overlays(list("paper_stamped"))
+		P.overlays = list("paper_stamped")
 
 		//work out data
 		var/data = " - Mundane object: [scanned_item.desc ? scanned_item.desc : "No information on record."]<br>"

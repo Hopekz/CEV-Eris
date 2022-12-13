@@ -26,10 +26,9 @@
 	owner = L
 	sync_icon(L)
 
-/mob/Destroy()
-	qdel(shadow)
-	shadow = null
-	. = ..()
+/mob/shadow/Destroy()
+	owner = null
+	return ..()
 
 /mob/shadow/examine(mob/user, distance, infix, suffix)
 	return owner.examine(user, distance, infix, suffix)
@@ -39,7 +38,7 @@
 	icon = M.icon
 	icon_state = M.icon_state
 	color = M.color
-	set_overlays(M.overlays)
+	overlays = M.overlays
 	transform = M.transform
 	dir = M.dir
 	if(shadow)

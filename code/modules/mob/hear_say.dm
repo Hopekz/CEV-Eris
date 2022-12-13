@@ -4,17 +4,19 @@
 	if(!client)
 		return
 
-	if(message == get_cop_code())
-		language = null
-		if(isghost(src))
-			message = "[message] ([cop_code_meaning])"
-		else if(stats.getPerk(/datum/perk/codespeak))
-			message = "[message] ([cop_code_meaning])"
+	if(isghost(src) || stats.getPerk(PERK_CODESPEAK_COP))
+		message = cop_codes.find_message(message) ? "[message] ([cop_codes.find_message(message)])" : message
+	if(isghost(src) || stats.getPerk(PERK_CODESPEAK_SERB))
+		message = serb_codes.find_message(message) ? "[message] ([serb_codes.find_message(message)])" : message
 
 	var/speaker_name = speaker.name
 	if(ishuman(speaker))
 		var/mob/living/carbon/human/H = speaker
-		speaker_name = H.rank_prefix_name(H.GetVoice())
+		// GetVoice(TRUE) checks if mask hiding the voice
+		speaker_name = H.rank_prefix_name(H.GetVoice(TRUE))
+		// If we have the right perk or standing close - GetVoice() again, but skip mask check
+		if((get_dist(src, H) < 2) || stats?.getPerk(PERK_EAR_OF_QUICKSILVER))
+			speaker_name = H.rank_prefix_name(H.GetVoice(FALSE))
 
 	if(speech_volume)
 		message = "<FONT size='[speech_volume]'>[message]</FONT>"
@@ -52,7 +54,7 @@
 	if(speech_sound && (get_dist(speaker, src) <= world.view && src.z == speaker.z))
 		var/turf/source = speaker ? get_turf(speaker) : get_turf(src)
 		src.playsound_local(source, speech_sound, sound_vol, 1)
-			
+
 /mob/proc/on_hear_say(var/message)
 	to_chat(src, message)
 
@@ -66,13 +68,14 @@
 	if(!client)
 		return
 
-	if(findtext(message, get_cop_code()))
-		message = cop_code_last
-		language = null
-		if(isghost(src))
-			message = "[message] ([cop_code_meaning])"
-		else if(stats.getPerk(/datum/perk/codespeak))
-			message = "[message] ([cop_code_meaning])"
+	if(isghost(src) || stats.getPerk(PERK_CODESPEAK_COP))
+		var/found = cop_codes.find_message_radio(message)
+		if(found)
+			message = "[message] ([found])"
+	if(isghost(src) || stats.getPerk(PERK_CODESPEAK_SERB))
+		var/found = serb_codes.find_message_radio(message)
+		if(found)
+			message = "[message] ([found])"
 
 	var/speaker_name = get_hear_name(speaker, hard_to_hear, voice_name)
 
@@ -123,7 +126,7 @@
 	if(ishuman(speaker))
 		var/mob/living/carbon/human/H = speaker
 
-		if(H.wear_mask && istype(H.wear_mask, /obj/item/clothing/mask/gas/voice))
+		if(H.wear_mask && istype(H.wear_mask, /obj/item/clothing/mask/chameleon/voice))
 			changed_voice = TRUE
 			var/mob/living/carbon/human/I
 

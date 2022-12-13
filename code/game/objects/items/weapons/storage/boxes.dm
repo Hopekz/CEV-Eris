@@ -43,7 +43,7 @@
 	. = ..()
 	update_icon()
 
-/obj/item/storage/box/on_update_icon()
+/obj/item/storage/box/update_icon()
 	. = ..()
 	if(illustration)
 		cut_overlays()
@@ -174,19 +174,6 @@
 	for(var/i in 1 to initial_amount)
 		new spawn_type(src)
 
-/obj/item/storage/box/injectors
-	name = "box of DNA injectors"
-	desc = "This box contains injectors it seems."
-	initial_amount = 3
-	spawn_type = /obj/item/dnainjector/h2m
-
-/obj/item/storage/box/injectors/populate_contents()
-	for(var/i in 1 to initial_amount)
-		new spawn_type(src)
-	new /obj/item/dnainjector/m2h(src)
-	new /obj/item/dnainjector/m2h(src)
-	new /obj/item/dnainjector/m2h(src)
-
 /obj/item/storage/box/shotgunammo
 	name = "box of shotgun slugs"
 	desc = "It has a picture of a gun and several warning symbols on the front.<br>WARNING: Live ammunition. Misuse may result in serious injury or death."
@@ -247,12 +234,13 @@
 	desc = "It has a picture of a gun and several warning symbols on the front.<br>WARNING: Live ammunition. Misuse may result in serious injury or death."
 	illustration = "ammo"
 	rarity_value = 80
-	initial_amount = 1
+	initial_amount = 3
 	spawn_type = /obj/item/ammo_casing/antim/prespawned
 	spawn_tags = SPAWN_TAG_AMMO
 
 /obj/item/storage/box/sniperammo/populate_contents()
-	new spawn_type(src)
+	for(var/i in 1 to initial_amount)
+		new spawn_type(src)
 	for(var/obj/item/ammo_casing/temp_casing in src)
 		temp_casing.update_icon()
 
@@ -261,42 +249,27 @@
 	desc = "It has a picture of a gun and several warning symbols on the front, among them is a symbol you're not quite able to make sense of.<br>WARNING: Live EMP ammunition. Misuse may result in serious injury or death."
 	illustration = "ammo"
 	rarity_value = 80
-	initial_amount = 1
+	initial_amount = 3
 	spawn_type = /obj/item/ammo_casing/antim/emp/prespawned
 	spawn_tags = SPAWN_TAG_AMMO
-
-/obj/item/storage/box/sniperammo/emp/populate_contents()
-	new spawn_type(src)
-	for(var/obj/item/ammo_casing/temp_casing in src)
-		temp_casing.update_icon()
 
 /obj/item/storage/box/sniperammo/uranium
 	name = "box of .60 \"Meltdown\" Anti Material shells"
 	desc = "It has a picture of a gun and several warning symbols on the front, including a radiation hazard sign.<br>WARNING: Live depleted uranium ammunition. Misuse may result in serious injury or death."
 	illustration = "ammo"
 	rarity_value = 80
-	initial_amount = 1
+	initial_amount = 3
 	spawn_type = /obj/item/ammo_casing/antim/uranium/prespawned
 	spawn_tags = SPAWN_TAG_AMMO
-
-/obj/item/storage/box/sniperammo/uranium/populate_contents()
-	new spawn_type(src)
-	for(var/obj/item/ammo_casing/temp_casing in src)
-		temp_casing.update_icon()
 
 /obj/item/storage/box/sniperammo/breach
 	name = "box of .60 \"Breacher\" Anti Material shells"
 	desc = "It has a picture of a gun and several warning symbols on the front, including an explosive hazard sign.<br>WARNING: Live breaching ammunition. Misuse may result in serious injury or death."
 	illustration = "ammo"
 	rarity_value = 80
-	initial_amount = 1
+	initial_amount = 3
 	spawn_type = /obj/item/ammo_casing/antim/breach/prespawned
 	spawn_tags = SPAWN_TAG_AMMO
-
-/obj/item/storage/box/sniperammo/breach/populate_contents()
-	new spawn_type(src)
-	for(var/obj/item/ammo_casing/temp_casing in src)
-		temp_casing.update_icon()
 
 /obj/item/storage/box/flashbangs
 	name = "box of flashbangs"
@@ -306,6 +279,20 @@
 	rarity_value = 60
 	initial_amount = 7
 	spawn_type = /obj/item/grenade/flashbang
+
+/obj/item/storage/box/phosphorous
+	name = "box of white phosphorous grenades"
+	desc = "A box containing 7 antipersonnel incendiary  grenades.<br> WARNING: These devices are extremely dangerous and can cause severe burns and fires."
+	icon_state = "box_security"
+	illustration = "flashbang"
+	rarity_value = 60
+	initial_amount = 7
+	spawn_type = /obj/item/grenade/frag/white_phosphorous
+
+/obj/item/storage/box/phosphorous/populate_contents()
+	for(var/i in 1 to initial_amount)
+		new spawn_type(src)
+
 
 /obj/item/storage/box/flashbangs/uplink_item
 	name = "Box of flashbangs"
@@ -319,6 +306,7 @@
 /obj/item/storage/box/flashbangs/populate_contents()
 	for(var/i in 1 to initial_amount)
 		new spawn_type(src)
+
 
 /obj/item/storage/box/teargas
 	name = "box of pepperspray grenades"
@@ -354,6 +342,23 @@
 	rarity_value = 60
 	initial_amount = 4
 	spawn_type = /obj/item/grenade/frag
+
+/obj/item/storage/box/frag/populate_contents()
+	for(var/i in 1 to initial_amount)
+		new spawn_type(src)
+
+/obj/item/storage/box/stinger
+	name = "box of sting grenades"
+	desc = "A box containing 4 sting grenades. Designed for use against unruly crowds. <br> WARNING: May cause long-lasting injuries in close proximity."
+	icon_state = "box_security"
+	illustration = "flashbang"
+	rarity_value = 60
+	initial_amount = 4
+	spawn_type = /obj/item/grenade/frag/sting
+
+/obj/item/storage/box/stinger/populate_contents()
+	for(var/i in 1 to initial_amount)
+		new spawn_type(src)
 
 /obj/item/storage/box/frag/populate_contents()
 	for(var/i in 1 to initial_amount)
@@ -408,16 +413,16 @@
 	for(var/i in 1 to initial_amount)
 		new spawn_type(src)
 
-/obj/item/storage/box/baton_rounds
-	name = "box of baton rounds"
-	desc = "A box containing 6 rubber rounds, designed to be fired from grenade launchers."
+/obj/item/storage/box/sting_rounds
+	name = "box of sting rounds"
+	desc = "A box containing 6 sting rounds, designed to be fired from grenade launchers."
 	icon_state = "box_security"
 	illustration = "flashbang"
 	rarity_value = 60
 	initial_amount = 6
 	spawn_type = /obj/item/ammo_casing/grenade
 
-/obj/item/storage/box/baton_rounds/populate_contents()
+/obj/item/storage/box/sting_rounds/populate_contents()
 	for(var/i in 1 to initial_amount)
 		new spawn_type(src)
 
@@ -771,15 +776,62 @@
 /obj/item/storage/box/happy_meal/New()
 	. = ..()
 	var/list/things2spawn = list(
-		/obj/item/reagent_containers/food/snacks/sliceable/plaincake,
-		/obj/item/reagent_containers/food/snacks/sliceable/chocolatecake,
+		/obj/item/reagent_containers/food/snacks/creamcheesebreadslice,
+		/obj/item/reagent_containers/food/snacks/applecakeslice,
 		/obj/item/reagent_containers/food/snacks/bigbiteburger,
-		/obj/item/reagent_containers/food/snacks/fishandchips
+		/obj/item/reagent_containers/food/snacks/fishandchips,
+		/obj/spawner/soda
 	)
 /*someday...
 	if(prob(1))
 		things2spawn += /obj/item/clothing/head/kitty
 */
-	things2spawn += pick(subtypesof(/obj/item/toy/plushie) + subtypesof(/obj/item/toy/figure))
+	things2spawn += pick(/obj/spawner/toy/figure, /obj/spawner/toy/plushie, /obj/spawner/toy/card)
 	for(var/path in things2spawn)
 		new path(src)
+
+/obj/item/storage/box/njoy/red
+	name = "red Njoy packet"
+	desc = "Packet full of red njoy pills."
+	illustration = null
+	icon_state = "packet_njoy_red"
+	item_state = "packet_njoy_red"
+
+/obj/item/storage/box/njoy/red/New()
+	. = ..()
+
+/obj/item/storage/box/njoy/red/populate_contents()
+	for(var/i in 1 to initial_amount)
+		new /obj/item/storage/pill_bottle/njoy/red(src)
+
+
+/obj/item/storage/box/njoy/blue
+	name = "blue Njoy packet"
+	desc = "Packet full of blue njoy pills."
+	illustration = null
+	icon_state = "packet_njoy_blue"
+	item_state = "packet_njoy_blue"
+
+/obj/item/storage/box/njoy/blue/New()
+	. = ..()
+
+/obj/item/storage/box/njoy/blue/populate_contents()
+	for(var/i in 1 to initial_amount)
+		new /obj/item/storage/pill_bottle/njoy/blue(src)
+
+
+/obj/item/storage/box/njoy/green
+	name = "green Njoy packet"
+	desc = "Packet full of green njoy pills."
+	illustration = null
+	icon_state = "packet_njoy_green"
+	item_state = "packet_njoy_green"
+
+/obj/item/storage/box/njoy/green/New()
+	. = ..()
+
+/obj/item/storage/box/njoy/green/populate_contents()
+	for(var/i in 1 to initial_amount)
+		new /obj/item/storage/pill_bottle/njoy/green(src)
+
+

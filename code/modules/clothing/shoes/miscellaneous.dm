@@ -13,9 +13,7 @@
 	permeability_coefficient = 0.05
 	item_flags = NOSLIP | SILENT
 	origin_tech = list(TECH_COVERT = 3)
-	var/list/clothing_choices = list()
 	siemens_coefficient = 0 // DAMN BOI
-	species_restricted = null
 	spawn_blacklisted = TRUE
 
 /obj/item/clothing/shoes/mime
@@ -105,11 +103,27 @@
 	item_flags = NOSLIP
 	slowdown = SHOES_SLOWDOWN+1
 	species_restricted = null
+	style = STYLE_NEG_HIGH
 
 /obj/item/clothing/shoes/leather
 	name = "leather shoes"
 	desc = "A sturdy pair of leather shoes."
 	icon_state = "leather"
+	style = STYLE_HIGH
+
+/obj/item/clothing/shoes/jamrock
+	name = "lizardskin shoes"
+	desc = "Awesome watchtower heels from green leather."
+	icon_state = "lizardskin_shoes"
+	item_state = "lizardskin_shoes"
+	style = STYLE_HIGH
+
+/obj/item/clothing/shoes/aerostatic
+	name = "aerostatic shoes"
+	desc = "A pair of running shoes. That stated, despite not making you go faster, they do look nice."
+	icon_state = "aerostatic_shoes"
+	item_state = "aerostatic_shoes"
+	style = STYLE_HIGH
 
 /obj/item/clothing/shoes/redboot
 	name = "red boots"
@@ -126,3 +140,39 @@
 	item_state = "longboots"
 	style = STYLE_HIGH
 	price_tag = 400
+
+/obj/item/clothing/shoes/jackboots/duty
+	name = "duty jackboots"
+	desc = "A pair of slightly modified standard-issue jackboots. Not exactly more combat-ish, but may look better."
+	icon_state = "duty"
+	item_state = "duty"
+
+/obj/item/clothing/shoes/jackboots/duty/long
+	name = "long duty jackboots"
+	desc = "A pair of slightly modified standard-issue jackboots. These reach up even higher."
+	icon_state = "duty_long"
+	item_state = "duty_long"
+
+/obj/item/clothing/shoes/sneakerspurple
+	name = "purple sneakers"
+	desc = "A stylish, expensive pair of purple sneakers."
+	icon_state = "sneakerspurple"
+	item_state = "sneakerspurple"
+
+/obj/item/clothing/shoes/sneakersblue
+	name = "blue sneakers"
+	desc = "A stylish, expensive pair of blue sneakers."
+	icon_state = "sneakersblue"
+	item_state = "sneakersblue"
+
+/obj/item/clothing/shoes/sneakersred
+	name = "red sneakers"
+	desc = "A stylish, expensive pair of red sneakers."
+	icon_state = "sneakersred"
+	item_state = "sneakersred"
+
+/obj/item/clothing/shoes/spurs
+	name = "spurs"
+	desc = "A pair of leather boots with spurs. The way they jingle and jangle is quite enticing."
+	icon_state = "spurs"
+	item_state = "spurs"

@@ -2,6 +2,7 @@
 	name = "Portable Air Scrubber"
 
 	icon = 'icons/obj/atmos.dmi'
+	description_info = "Can be emptied by connecting onto a port and pumping the gasses out"
 	icon_state = "pscrubber:0"
 	density = TRUE
 	w_class = ITEM_SIZE_NORMAL
@@ -34,8 +35,8 @@
 
 	..(severity)
 
-/obj/machinery/portable_atmospherics/powered/scrubber/on_update_icon()
-	src.set_overlays(0)
+/obj/machinery/portable_atmospherics/powered/scrubber/update_icon()
+	src.overlays = 0
 
 	if(on && cell && cell.charge)
 		icon_state = "pscrubber:1"
@@ -43,10 +44,10 @@
 		icon_state = "pscrubber:0"
 
 	if(holding)
-		add_overlays("scrubber-open")
+		overlays += "scrubber-open"
 
 	if(connected_port)
-		add_overlays("scrubber-connector")
+		overlays += "scrubber-connector"
 
 	return
 
@@ -95,10 +96,10 @@
 	return src.attack_hand(user)
 
 /obj/machinery/portable_atmospherics/powered/scrubber/attack_hand(var/mob/user)
-	ui_interact(user)
+	nano_ui_interact(user)
 	return
 
-/obj/machinery/portable_atmospherics/powered/scrubber/ui_interact(mob/user, ui_key = "rcon", datum/nanoui/ui=null, force_open=NANOUI_FOCUS)
+/obj/machinery/portable_atmospherics/powered/scrubber/nano_ui_interact(mob/user, ui_key = "rcon", datum/nanoui/ui=null, force_open=NANOUI_FOCUS)
 	var/list/data[0]
 	data["portConnected"] = connected_port ? 1 : 0
 	data["tankPressure"] = round(air_contents.return_pressure() > 0 ? air_contents.return_pressure() : 0)
@@ -168,8 +169,8 @@
 /obj/machinery/portable_atmospherics/powered/scrubber/huge/attack_hand(var/mob/user as mob)
 		to_chat(usr, SPAN_NOTICE("You can't directly interact with this machine. Use the scrubber control console."))
 
-/obj/machinery/portable_atmospherics/powered/scrubber/huge/on_update_icon()
-	src.set_overlays(0)
+/obj/machinery/portable_atmospherics/powered/scrubber/huge/update_icon()
+	src.overlays = 0
 
 	if(on && !(stat & (NOPOWER|BROKEN)))
 		icon_state = "scrubber:1"

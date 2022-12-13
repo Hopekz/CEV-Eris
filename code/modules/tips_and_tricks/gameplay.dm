@@ -2,6 +2,9 @@
 /tipsAndTricks/gameplay
     textColor = "#32690e"
 
+/tipsAndTricks/gameplay/bracing
+    tipText = "You can brace your weapon on a table or a low wall to reduce its recoil."
+
 /tipsAndTricks/gameplay/airlockInteractions
     tipText = "Did you know? You can click on the turf tile where an airlock is located instead of the actual airlock to toggle it."
 
@@ -43,3 +46,9 @@
 
 /tipsAndTricks/gameplay/cuffHardsuit
     tipText = "People in RIG/Hardsuits need to be cuffed using zipties or cable cuffs. Normal cuffs are not large enough to cover their gauntlets."
+
+/tipsAndTricks/gameplay/examinetab
+    tipText = "Automatically switching to the examine tab upon examining something can be disabled in your preferences."
+
+/tipsAndTricks/gameplay/nudestyle
+    tipText = "You do not have to cover yourself from ears to toes to look stylish - not wearing anything on your head, eyes, gloves or back looks cool enough."

@@ -2,6 +2,7 @@
 #define AB_SPELL 2
 #define AB_INNATE 3
 #define AB_GENERIC 4
+#define AB_ITEM_PROC 5
 
 #define AB_CHECK_RESTRAINED 1
 #define AB_CHECK_STUNNED 2
@@ -14,6 +15,7 @@
 	var/name = "Generic Action"
 	var/action_type = AB_ITEM
 	var/procname
+	var/list/arguments
 	var/atom/movable/target
 	var/check_flags = 0
 	var/processing = 0
@@ -73,6 +75,11 @@
 		if(AB_GENERIC)
 			if(target && procname)
 				call(target, procname)(usr)
+		if(AB_ITEM_PROC)
+			if(target && procname)
+				if(!arguments)
+					arguments = usr
+				call(target, procname)(arguments)		
 	return
 
 /datum/action/proc/Activate()
@@ -133,16 +140,16 @@
 	icon = owner.button_icon
 	icon_state = owner.background_icon_state
 
-	cut_overlays()
+	overlays.Cut()
 	var/image/img
-	if(owner.action_type == AB_ITEM && owner.target)
+	if((owner.action_type == AB_ITEM || owner.action_type == AB_ITEM_PROC) && owner.target)
 		var/obj/item/I = owner.target
 		img = image(I.icon, src , I.icon_state)
 	else if(owner.button_icon && owner.button_icon_state)
 		img = image(owner.button_icon, src, owner.button_icon_state)
 	img.pixel_x = 0
 	img.pixel_y = 0
-	add_overlays(img)
+	overlays += img
 
 	if(!owner.IsAvailable())
 		color = rgb(128, 0, 0, 128)
@@ -174,9 +181,9 @@
 	return
 
 /obj/screen/movable/action_button/hide_toggle/UpdateIcon()
-	cut_overlays()
+	overlays.Cut()
 	var/image/img = image(icon, src, hidden?"show":"hide")
-	add_overlays(img)
+	overlays += img
 	return
 
 //This is the proc used to update all the action buttons. Properly defined in /mob/living/

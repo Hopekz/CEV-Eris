@@ -23,15 +23,15 @@
 	var/spawn_tags
 	var/rarity_value = 1 //min:1
 	var/spawn_frequency = 0 //min:0
-	var/accompanying_object	//path or text "obj/item,/obj/item/device"
-	var/prob_aditional_object = 100
-	var/spawn_blacklisted = FALSE
-	var/bad_type //path
+	var/accompanying_object	// path or text "obj/item,/obj/item/device". This object will spawn alongside (in turf of) the spawned atom.
+	var/prob_aditional_object = 100 // Probability for the accompanying_object to spawn.
+	var/spawn_blacklisted = FALSE // Generally for niche objects, atoms blacklisted can spawn if enabled by spawner. Examples include exoplanet loot tables you don't want spawning within the player starting area.
+	var/bad_type // Use path Ex:(bad_type = obj/item). Generally for abstract code objects, atoms with a set bad_type can never be selected by spawner. Examples include parent objects which should only exist within the code, or deployable embedded items.
 
 /atom/movable/Del()
 	if(isnull(gc_destroyed) && loc)
 		testing("GC: -- [type] was deleted via del() rather than qdel() --")
-		crash_with("GC: -- [type] was deleted via del() rather than qdel() --") // stick a stack trace in the runtime logs
+		CRASH("GC: -- [type] was deleted via del() rather than qdel() --") // stick a stack trace in the runtime logs
 //	else if(isnull(gcDestroyed))
 //		testing("GC: [type] was deleted via GC without qdel()") //Not really a huge issue but from now on, please qdel()
 //	else
@@ -158,9 +158,9 @@
 	src.thrower = thrower
 	src.throw_source = get_turf(src)	//store the origin turf
 
-	if(usr)
-		if(HULK in usr.mutations)
-			src.throwing = 2 // really strong throw!
+//	if(usr)
+//		if(HULK in usr.mutations)
+//			src.throwing = 2 // really strong throw!
 
 	var/dist_x = abs(target.x - src.x)
 	var/dist_y = abs(target.y - src.y)

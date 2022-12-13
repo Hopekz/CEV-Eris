@@ -15,12 +15,15 @@
 		germ_level++
 
 /mob/living/carbon/Destroy()
-	qdel(ingested)
-	qdel(touching)
-	// We don't qdel(bloodstr) because it's the same as qdel(reagents)
-	QDEL_NULL_LIST(internal_organs)
-	QDEL_NULL_LIST(stomach_contents)
-	QDEL_NULL_LIST(hallucinations)
+	QDEL_NULL(metabolism_effects)
+	reagents = null
+	QDEL_NULL(ingested)
+	QDEL_NULL(touching)
+	QDEL_NULL(bloodstr)
+	QDEL_NULL(vessel)
+	QDEL_LIST(internal_organs)
+	QDEL_LIST(stomach_contents)
+	QDEL_LIST(hallucinations)
 	return ..()
 
 /mob/living/carbon/rejuvenate()
@@ -165,9 +168,6 @@
 		if(src == M && ishuman(src))
 			var/mob/living/carbon/human/H = src
 			H.check_self_for_injuries()
-
-			if((SKELETON in H.mutations) && (!H.w_uniform) && (!H.wear_suit))
-				H.play_xylophone()
 		else if (on_fire)
 			playsound(src.loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
 			if (M.on_fire)
@@ -248,17 +248,13 @@
 /mob/living/carbon/proc/eyecheck()
 	return 0
 
-// ++++ROCKDTBEN++++ MOB PROCS -- Ask me before touching.
-// Stop! ... Hammertime! ~Carn
-
-/mob/living/carbon/proc/getDNA()
-	return dna
-
-/mob/living/carbon/proc/setDNA(var/datum/dna/newDNA)
-	dna = newDNA
-
-// ++++ROCKDTBEN++++ MOB PROCS //END
-
+/mob/living/carbon/flash(duration = 0, drop_items = FALSE, doblind = FALSE, doblurry = FALSE)
+	if(blinded)
+		return
+	if(species)
+		..(duration * species.flash_mod, drop_items, doblind, doblurry)
+	else
+		..(duration, drop_items, doblind, doblurry)
 //Throwing stuff
 /mob/proc/throw_item(atom/target)
 	return
@@ -273,23 +269,9 @@
 
 	if(!item) return
 
-	if(istype(item, /obj/item/stack/throwing_knife))
-		var/obj/item/stack/throwing_knife/V = item
-		var/ROB_throwing_damage = max(stats.getStat(STAT_ROB), 1)
-		V.throwforce = 35 / (1 + 100 / ROB_throwing_damage + 10) //soft cap; This would result in knives doing 10 damage at 0 rob, 20 at 50 ROB, 25 at 100 etc.
-		if(V.amount == 1)
-			drop_from_inventory(V)
-			V.throw_at(target, item.throw_range, item.throw_speed, src)
-		else
-			V.amount--
-			V.update_icon()
-			var/obj/item/stack/throwing_knife/J = new(get_turf(src))
-			J.throwforce = V.throwforce
-			J.amount = 1
-			J.update_icon()
-			J.throw_at(target, throw_range, throw_speed, src)
-		visible_message(SPAN_DANGER("[src] has thrown [item]."))
-		V.update_icon()
+	if(istype(item, /obj/item/stack/thrown))
+		var/obj/item/stack/thrown/V = item
+		V.fireAt(target, src)
 		return
 
 	if (istype(item, /obj/item/grab))
@@ -396,8 +378,6 @@
 		to_chat(src, SPAN_WARNING("You slipped on [slipped_on]!"))
 		playsound(src.loc, 'sound/misc/slip.ogg', 50, 1, -3)
 	Weaken(stun_duration)
-	if(l_hand) unEquip(l_hand)
-	if(r_hand) unEquip(r_hand)
 
 	return TRUE
 
@@ -434,9 +414,10 @@
 	<BR><A href='?src=\ref[user];refresh=1'>Refresh</A>
 	<BR><A href='?src=\ref[user];mach_close=mob[name]'>Close</A>
 	<BR>"}
-	user << browse(dat, text("window=mob[];size=325x500", name))
-	onclose(user, "mob[name]")
-	return
+
+	var/datum/browser/panel = new(user, "mob[name]", "Mob", 325, 400)
+	panel.set_content(dat)
+	panel.open()
 
 /mob/living/carbon/proc/should_have_process(var/organ_check)
 	return 0

@@ -21,7 +21,7 @@
 	src.blacklist = species_blacklist
 
 
-/datum/nano_module/appearance_changer/Topic(ref, href_list, var/datum/topic_state/state = GLOB.default_state)
+/datum/nano_module/appearance_changer/Topic(ref, href_list, var/datum/nano_topic_state/state = GLOB.default_state)
 	if(..())
 		return 1
 
@@ -53,43 +53,37 @@
 			var/new_skin = input(usr, "Choose your character's skin colour: ", "Skin Color", owner.skin_color) as color|null
 			if(new_skin && can_still_topic(state))
 				if(owner.change_skin_color(new_skin))
-					update_dna()
 					return 1
 	if(href_list["hair"])
 		if(can_change(APPEARANCE_HAIR) && (href_list["hair"] in valid_hairstyles))
 			if(owner.change_hair(href_list["hair"]))
-				update_dna()
 				return 1
 	if(href_list["hair_color"])
 		if(can_change(APPEARANCE_HAIR_COLOR))
 			var/new_hair = input("Please select hair color.", "Hair Color", owner.hair_color) as color|null
 			if(new_hair && can_still_topic(state))
 				if(owner.change_hair_color(new_hair))
-					update_dna()
 					return 1
 	if(href_list["facial_hair"])
 		if(can_change(APPEARANCE_FACIAL_HAIR) && (href_list["facial_hair"] in valid_facial_hairstyles))
 			if(owner.change_facial_hair(href_list["facial_hair"]))
-				update_dna()
 				return 1
 	if(href_list["facial_hair_color"])
 		if(can_change(APPEARANCE_FACIAL_HAIR_COLOR))
 			var/new_facial = input("Please select facial hair color.", "Facial Hair Color", owner.facial_color) as color|null
 			if(new_facial && can_still_topic(state))
 				if(owner.change_facial_hair_color(new_facial))
-					update_dna()
 					return 1
 	if(href_list["eye_color"])
 		if(can_change(APPEARANCE_EYE_COLOR))
 			var/new_eyes = input("Please select eye color.", "Eye Color", owner.eyes_color) as color|null
 			if(new_eyes && can_still_topic(state))
 				if(owner.change_eye_color(new_eyes))
-					update_dna()
 					return 1
 
 	return 0
 
-/datum/nano_module/appearance_changer/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS, var/datum/topic_state/state = GLOB.default_state)
+/datum/nano_module/appearance_changer/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS, var/datum/nano_topic_state/state = GLOB.default_state)
 	if(!owner || !owner.species)
 		return
 
@@ -142,10 +136,6 @@
 		ui.set_initial_data(data)
 		ui.open()
 		ui.set_auto_update(1)
-
-/datum/nano_module/appearance_changer/proc/update_dna()
-	if(owner && (flags & APPEARANCE_UPDATE_DNA))
-		owner.update_dna()
 
 /datum/nano_module/appearance_changer/proc/can_change(var/flag)
 	return owner && (flags & flag)

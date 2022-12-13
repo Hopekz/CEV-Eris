@@ -4,15 +4,16 @@
 	GLOB.living_mob_list -= src
 	GLOB.mob_list -= src
 	unset_machine()
-	qdel(hud_used)
+	QDEL_NULL(hud_used)
+	QDEL_NULL(parallax)
+	QDEL_NULL(shadow)
 	if(client)
 		for(var/atom/movable/AM in client.screen)
 			qdel(AM)
 		client.screen = list()
-
 	ghostize()
 	..()
-	return QDEL_HINT_HARDDEL
+	return QDEL_HINT_QUEUE
 
 /mob/proc/despawn()
 	return
@@ -36,31 +37,39 @@
 	move_intent = decls_repository.get_decl(move_intent)
 	. = ..()
 
+/**
+ * Generate the tag for this mob
+ *
+ * This is simply "mob_"+ a global incrementing counter that goes up for every mob
+ */
+/mob/GenerateTag()
+	tag = "mob_[next_mob_id++]"
+
 /mob/proc/show_message(msg, type, alt, alt_type)//Message, type of message (1 or 2), alternative message, alt message type (1 or 2)
+	if(!client)
+		return
 
-	if(!client)	return
-
-	if (type)
-		if(type & 1 && (sdisabilities & BLIND || blinded || paralysis) )//Vision related
-			if (!( alt ))
+	if(type)
+		if(type & 1 && (sdisabilities & BLIND || blinded || paralysis)) //Vision related
+			if(!alt)
 				return
 			else
 				msg = alt
 				type = alt_type
-		if (type & 2 && (sdisabilities & DEAF || ear_deaf))//Hearing related
-			if (!( alt ))
+		if(type & 2 && (sdisabilities & DEAF || ear_deaf)) //Hearing related
+			if(!alt)
 				return
 			else
 				msg = alt
 				type = alt_type
-				if ((type & 1 && sdisabilities & BLIND))
+				if((type & 1 && sdisabilities & BLIND))
 					return
+
 	// Added voice muffling for Issue 41.
 	if(stat == UNCONSCIOUS || sleeping > 0)
 		to_chat(src, "<I>... You can almost hear someone talking ...</I>")
 	else
 		to_chat(src, msg)
-	return
 
 // Show a message to all mobs and objects in sight of this one
 // This would be for visible actions by the src mob
@@ -176,10 +185,10 @@
 	if ((incapacitation_flags & INCAPACITATION_STUNNED) && stunned)
 		return 1
 
-	if ((incapacitation_flags & INCAPACITATION_SOFTLYING) && (resting))
+	if ((incapacitation_flags & INCAPACITATION_SOFTLYING) && (resting || weakened))
 		return 1
 
-	if ((incapacitation_flags & INCAPACITATION_FORCELYING) && (weakened || pinned.len))
+	if ((incapacitation_flags & INCAPACITATION_FORCELYING) && pinned.len)
 		return 1
 
 	if ((incapacitation_flags & INCAPACITATION_UNCONSCIOUS) && (stat || paralysis || sleeping || (status_flags & FAKEDEATH)))
@@ -227,42 +236,74 @@
 /mob/proc/show_inv(mob/user as mob)
 	return
 
-//mob verbs are faster than object verbs. See http://www.byond.com/forum/?post=1326139&page=2#comment8198716 for why this isn't atom/verb/examine()
-/mob/verb/examinate(atom/A as mob|obj|turf in view())
+/**
+ * Examine a mob
+ *
+ * mob verbs are faster than object verbs. See
+ * [this byond forum post](https://secure.byond.com/forum/?post=1326139&page=2#comment8198716)
+ * for why this isn't atom/verb/examine()
+ */
+/mob/verb/examinate(atom/examinify as mob|obj|turf in view())
 	set name = "Examine"
 	set category = "IC"
 
+	DEFAULT_QUEUE_OR_CALL_VERB(VERB_CALLBACK(src, .proc/run_examinate, examinify))
+
+/mob/proc/run_examinate(atom/examinify)
+
 	if((is_blind(src) || usr.stat) && !isobserver(src))
 		to_chat(src, "<span class='notice'>Something is there but you can't see it.</span>")
-		return 1
+		return
 
-	face_atom(A)
+	face_atom(examinify)
 	var/obj/item/device/lighting/toggleable/flashlight/FL = locate() in src
-	if (FL && FL.on && src.stat != DEAD && !incapacitated())
-		FL.afterattack(A,src)
-	A.examine(src)
+	if (FL?.on && stat != DEAD && !incapacitated())
+		FL.afterattack(examinify, src)
+	examinify.examine(src)
 
+/**
+ * Point at an atom
+ *
+ * mob verbs are faster than object verbs. See
+ * [this byond forum post](https://secure.byond.com/forum/?post=1326139&page=2#comment8198716)
+ * for why this isn't atom/verb/pointed()
+ *
+ * note: ghosts can point, this is intended
+ *
+ * visible_message will handle invisibility properly
+ *
+ * overridden here and in /mob/dead/observer for different point span classes and sanity checks
+ */
 /mob/verb/pointed(atom/A as mob|obj|turf in view())
 	set name = "Point To"
 	set category = "Object"
 
-	if(!src || !isturf(src.loc) || !(A in view(src.loc)))
-		return 0
 	if(istype(A, /obj/effect/decal/point))
-		return 0
+		return FALSE
 
-	var/tile = get_turf(A)
+	DEFAULT_QUEUE_OR_CALL_VERB(VERB_CALLBACK(src, .proc/_pointed, A))
+
+/// possibly delayed verb that finishes the pointing process starting in [/mob/verb/pointed()].
+/// either called immediately or in the tick after pointed() was called, as per the [DEFAULT_QUEUE_OR_CALL_VERB()] macro
+/mob/proc/_pointed(atom/pointing_at)
+	if(client && !(pointing_at in view(client.view, src)))
+		return FALSE
+
+	if(!isturf(loc))
+		return FALSE
+
+	var/turf/tile = get_turf(pointing_at)
 	if (!tile)
-		return 0
+		return FALSE
 
-	var/obj/P = new /obj/effect/decal/point(tile)
-	P.invisibility = invisibility
-	P.pixel_x = A.pixel_x
-	P.pixel_y = A.pixel_y
-	QDEL_IN(P, 2 SECONDS)
+	var/turf/our_tile = get_turf(src)
 
-	face_atom(A)
-	return 1
+	var/obj/visual = new /obj/effect/decal/point(our_tile)
+	visual.invisibility = invisibility
+
+	animate(visual, pixel_x = (tile.x - our_tile.x) * world.icon_size + pointing_at.pixel_x, pixel_y = (tile.y - our_tile.y) * world.icon_size + pointing_at.pixel_y, time = 1.7, easing = EASE_OUT)
+	QDEL_IN(visual, 2 SECONDS)
+	return TRUE
 
 
 /mob/proc/ret_grab(obj/effect/list_container/mobl/L as obj, flag)
@@ -299,10 +340,22 @@
 				return L.container
 	return
 
+/**
+ * Verb to activate the object in your held hand
+ *
+ * Calls attack self on the item and updates the inventory hud for hands
+ */
 /mob/verb/mode()
 	set name = "Activate Held Object"
 	set category = "Object"
 	set src = usr
+
+	DEFAULT_QUEUE_OR_CALL_VERB(VERB_CALLBACK(src, .proc/execute_mode))
+
+///proc version to finish /mob/verb/mode() execution. used in case the proc needs to be queued for the tick after its first called
+/mob/proc/execute_mode()
+	if(incapacitated())
+		return
 
 	var/obj/item/W = get_active_hand()
 	if (W)
@@ -376,37 +429,6 @@
 	src << browse('html/help.html', "window=help")
 	return
 */
-
-
-
-/client/verb/changes()
-	set name = "Changelog"
-	set category = "OOC"
-	getFiles(
-		'html/88x31.png',
-		'html/bug-minus.png',
-		'html/cross-circle.png',
-		'html/hard-hat-exclamation.png',
-		'html/image-minus.png',
-		'html/image-plus.png',
-		'html/map-pencil.png',
-		'html/music-minus.png',
-		'html/music-plus.png',
-		'html/tick-circle.png',
-		'html/wrench-screwdriver.png',
-		'html/spell-check.png',
-		'html/burn-exclamation.png',
-		'html/chevron.png',
-		'html/chevron-expand.png',
-		'html/changelog.css',
-		'html/changelog.js',
-		'html/changelog.html'
-		)
-	src << browse('html/changelog.html', "window=changes;size=675x650")
-	if(prefs.lastchangelog != changelog_hash)
-		prefs.lastchangelog = changelog_hash
-		prefs.save_preferences()
-		winset(src, "rpane.changelog", "background-color=none;font-style=;")
 
 /mob/verb/observe()
 	set name = "Observe"
@@ -653,7 +675,7 @@
 	if(.)
 		if(statpanel("Status") && SSticker.current_state != GAME_STATE_PREGAME)
 			stat("Storyteller", "[master_storyteller]")
-			stat("Station Time", stationtime2text())
+			stat("Ship Time", stationtime2text())
 			stat("Round Duration", roundduration2text())
 
 		if(client.holder)
@@ -718,7 +740,7 @@ Note from Nanako: 2019-02-01
 TODO: Bay Movement:
 All Canmove setting in this proc is temporary. This var should not be set from here, but from movement controllers
 */
-/mob/proc/update_lying_buckled_and_verb_status()
+/mob/proc/update_lying_buckled_and_verb_status(dropitems = FALSE)
 
 	if(!resting && cannot_stand() && can_stand_overridden())
 		lying = 0
@@ -739,7 +761,7 @@ All Canmove setting in this proc is temporary. This var should not be set from h
 
 	if(lying)
 		set_density(0)
-		if(stat == UNCONSCIOUS)
+		if(stat == UNCONSCIOUS || dropitems)
 			if(l_hand) unEquip(l_hand) //we want to be able to keep items, for tactical resting and ducking behind cover
 			if(r_hand) unEquip(r_hand)
 	else
@@ -754,6 +776,7 @@ All Canmove setting in this proc is temporary. This var should not be set from h
 	//Temporarily moved here from the various life() procs
 	//I'm fixing stuff incrementally so this will likely find a better home.
 	//It just makes sense for now. ~Carn
+	// Fuck you Carn its been more than 6 years and people still lag from your shitty forced icon updates . SPCR -2022
 	if( update_icon )	//forces a full overlay update
 		update_icon = 0
 		regenerate_icons()
@@ -820,11 +843,11 @@ All Canmove setting in this proc is temporary. This var should not be set from h
 		update_lying_buckled_and_verb_status()
 	return
 
-/mob/proc/Weaken(amount)
+/mob/proc/Weaken(amount, dropitems = TRUE)
 	if(status_flags & CANWEAKEN)
 		facing_dir = null
 		weakened = max(max(weakened,amount),0)
-		update_lying_buckled_and_verb_status()	//updates lying, canmove and icons
+		update_lying_buckled_and_verb_status(dropitems)	//updates lying, canmove and icons
 	return
 
 /mob/proc/SetWeakened(amount)
@@ -901,9 +924,9 @@ All Canmove setting in this proc is temporary. This var should not be set from h
 	return
 
 /mob/living/flash_weak_pain()
-//	FLICK("weak_pain", flash["pain"])
+//	flick("weak_pain", flash["pain"])
 	if(HUDtech.Find("pain"))
-		FLICK("weak_pain", HUDtech["pain"])
+		flick("weak_pain", HUDtech["pain"])
 
 
 /mob/proc/get_visible_implants()
@@ -1059,9 +1082,8 @@ mob/proc/yank_out_object()
 
 //Check for brain worms in head.
 /mob/proc/has_brain_worms()
-
 	for(var/I in contents)
-		if(istype(I,/mob/living/simple_animal/borer))
+		if(istype(I, /mob/living/simple_animal/borer))
 			return I
 
 	return FALSE
@@ -1124,10 +1146,7 @@ mob/proc/yank_out_object()
 	if (stats) // Check if mob has stats. Otherwise we cannot read null.perks
 		for(var/perk in stats.perks)
 			var/datum/perk/P = perk
-			var/filename = sanitizeFileName("[P.type].png")
-			var/asset = asset_cache.cache[filename] // this is definitely a hack, but getAtomCacheFilename accepts only atoms for no fucking reason whatsoever.
-			if(asset)
-				Plist += "<td valign='middle'><img src=[filename]></td><td><span style='text-align:center'>[P.name]<br>[P.desc]</span></td>"
+			Plist += "<td valign='middle'><img src=[SSassets.transport.get_asset_url(P.type)]></td><td><span style='text-align:center'>[P.name]<br>[P.desc]</span></td>"
 	data += {"
 		<table width=80%>
 			<th colspan=2>Perks</th>

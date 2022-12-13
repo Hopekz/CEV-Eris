@@ -88,6 +88,11 @@
 	item_cost = 6
 	path = /obj/item/storage/box/syndie_kit/space
 
+/datum/uplink_item/item/tools/softsuit
+	name = "Armoured Softsuit"
+	item_cost = 3
+	path = /obj/item/storage/box/syndie_kit/softsuit
+
 /datum/uplink_item/item/tools/thermal
 	name = "Thermal Imaging Glasses"
 	item_cost = 8
@@ -164,7 +169,7 @@
 	name = "Blue Space Direct Mail Unit"
 	item_cost = 1
 	path = /obj/item/storage/bsdm
-	antag_roles = ROLES_CONTRACT
+	antag_roles = ROLES_CONTRACT_COMPLETE
 
 /datum/uplink_item/item/tools/bsdm/can_view(obj/item/device/uplink/U)
 	return ..() && (U.bsdm_time > world.time)
@@ -179,7 +184,7 @@
 	name = "Blue Space Direct Mail Unit"
 	item_cost = 0
 	path = /obj/item/storage/bsdm
-	antag_roles = ROLES_CONTRACT
+	antag_roles = ROLES_CONTRACT_COMPLETE
 
 /datum/uplink_item/item/tools/bsdm_free/can_view(obj/item/device/uplink/U)
 	return ..() && (U.bsdm_time <= world.time)

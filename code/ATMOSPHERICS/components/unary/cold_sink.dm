@@ -44,7 +44,7 @@
 
 	update_icon()
 
-/obj/machinery/atmospherics/unary/freezer/on_update_icon()
+/obj/machinery/atmospherics/unary/freezer/update_icon()
 	if(node1)
 		if(use_power && cooling)
 			icon_state = "freezer_1"
@@ -55,9 +55,9 @@
 	return
 
 /obj/machinery/atmospherics/unary/freezer/attack_hand(mob/user as mob)
-	ui_interact(user)
+	nano_ui_interact(user)
 
-/obj/machinery/atmospherics/unary/freezer/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/atmospherics/unary/freezer/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	// this is the data which will be sent to the ui
 	var/data[0]
 	data["on"] = use_power ? 1 : 0

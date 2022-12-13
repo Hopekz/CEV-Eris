@@ -61,14 +61,14 @@
 				circ2 = null
 	update_icon()
 
-/obj/machinery/power/generator/on_update_icon()
+/obj/machinery/power/generator/update_icon()
 	icon_state = anchored ? "teg-assembled" : "teg-unassembled"
-	cut_overlays()
+	overlays.Cut()
 	if (stat & (NOPOWER|BROKEN) || !anchored)
 		return 1
 	else
 		if (lastgenlev != 0)
-			add_overlays(image('icons/obj/machines/thermoelectric.dmi', "teg-op[lastgenlev]"))
+			overlays += image('icons/obj/machines/thermoelectric.dmi', "teg-op[lastgenlev]")
 			if (circ1 && circ2)
 				var/extreme = (lastgenlev > 9) ? "ex" : ""
 				if (circ1.last_temperature < circ2.last_temperature)
@@ -170,9 +170,9 @@
 	if(stat & (BROKEN|NOPOWER) || !anchored) return
 	if(!circ1 || !circ2) //Just incase the middle part of the TEG was not wrenched last.
 		reconnect()
-	ui_interact(user)
+	nano_ui_interact(user)
 
-/obj/machinery/power/generator/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/power/generator/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	// this is the data which will be sent to the ui
 	var/vertical = 0
 	if (dir == NORTH || dir == SOUTH)

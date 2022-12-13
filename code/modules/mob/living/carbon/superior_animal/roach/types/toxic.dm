@@ -5,13 +5,13 @@
 
 	meat_amount = 3
 	turns_per_move = 1
-	maxHealth = 45
-	health = 45
+	maxHealth = 40
+	health = 40
 
 	contaminant_immunity = TRUE
 
-	melee_damage_lower = 3
-	melee_damage_upper = 7 //Weaker than hunter
+	melee_damage_lower = 5
+	melee_damage_upper = 9 // Lacks penetration and wounding multiplier compared to hunter
 	rarity_value = 22.5
 
 	ranged = 1
@@ -19,6 +19,18 @@
 	fire_verb = "spits glowing bile"
 	acceptableTargetDistance = 5
 	kept_distance = 3
+
+	mob_size = MOB_MEDIUM
+
+	// Armor related variables
+	armor = list(
+		melee = 0,
+		bullet = 5,
+		energy = 0,
+		bomb = 0,
+		bio = 50,
+		rad = 100
+	)
 
 /mob/living/carbon/superior_animal/roach/toxic/UnarmedAttack(atom/A, var/proximity)
 	. = ..()
@@ -35,8 +47,8 @@
 	name = "Glowing bile"
 	icon = 'icons/obj/hivemind.dmi'
 	icon_state = "goo_proj"
-	damage_types = list()
-	irradiate = 20
+	damage_types = list(TOX = 15)
+	irradiate = 15
 	check_armour = ARMOR_BIO
 	step_delay = 2
 

@@ -2,6 +2,7 @@
 	gender = NEUTER
 	voice_name = "synthesized voice"
 	bad_type = /mob/living/silicon
+	tts_seed = "Robot_1"
 	var/syndicate = 0
 	var/const/MAIN_CHANNEL = "Main Frequency"
 	var/lawchannel = MAIN_CHANNEL // Default channel on which to state laws
@@ -49,6 +50,10 @@
 		AH.unregister_alarm(src)
 	. = ..()
 
+/mob/living/silicon/lay_down()
+	resting = FALSE
+	update_lying_buckled_and_verb_status()
+
 /mob/living/silicon/proc/init_id()
 	if(idcard)
 		return
@@ -72,14 +77,13 @@
 /mob/living/silicon/emp_act(severity)
 	switch(severity)
 		if(1)
-			take_organ_damage(0,20,emp=1)
+			take_organ_damage(0,20,emp=TRUE)
 			Stun(rand(5,10))
 		if(2)
-			take_organ_damage(0,10,emp=1)
+			take_organ_damage(0,10,emp=TRUE)
 			confused = (min(confused + 2, 30))
-//	FLICK("noise", flash)
-	if (HUDtech.Find("flash"))
-		FLICK("noise", HUDtech["flash"])
+//	flick("noise", flash)
+	flash(0, FALSE , FALSE , FALSE)
 	to_chat(src, SPAN_DANGER("<B>*BZZZT*</B>"))
 	to_chat(src, SPAN_DANGER("Warning: Electromagnetic pulse detected."))
 	..()
@@ -246,9 +250,7 @@
 	return 1
 
 /mob/living/silicon/ex_act(severity)
-	if(!blinded)
-		if (HUDtech.Find("flash"))
-			FLICK("flash", HUDtech["flash"])
+	flash(0, FALSE, FALSE, FALSE)
 
 	switch(severity)
 		if(1)
@@ -264,6 +266,9 @@
 		if(3)
 			if (stat != 2)
 				adjustBruteLoss(30)
+		if(4)
+			if (stat != 2)
+				adjustBruteLoss(15)
 
 	updatehealth()
 

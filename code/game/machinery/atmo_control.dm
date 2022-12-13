@@ -22,7 +22,7 @@
 
 	var/datum/radio_frequency/radio_connection
 
-/obj/machinery/air_sensor/on_update_icon()
+/obj/machinery/air_sensor/update_icon()
 	icon_state = "gsensor[on]"
 
 /obj/machinery/air_sensor/Process()
@@ -65,8 +65,8 @@
 	radio_connection = SSradio.add_object(src, frequency, RADIO_ATMOSIA)
 
 /obj/machinery/air_sensor/Initialize()
-	. = ..()
 	set_frequency(frequency)
+	. = ..()
 
 obj/machinery/air_sensor/Destroy()
 	SSradio.remove_object(src,frequency)

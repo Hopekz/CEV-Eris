@@ -136,7 +136,7 @@
 	if(istype(O,/obj/item/reagent_containers/glass) || istype(O,/obj/item/reagent_containers/food/drinks) || istype(O,/obj/item/reagent_containers/food/condiment))
 		return 1
 
-/obj/machinery/smartfridge/drinks/on_update_icon()
+/obj/machinery/smartfridge/drinks/update_icon()
 	cut_overlays()
 	if(stat & (BROKEN|NOPOWER))
 		icon_state = icon_off
@@ -144,10 +144,10 @@
 		icon_state = icon_on
 
 	if(panel_open && icon_panel)
-		add_overlays(image(icon, icon_panel))
-	
+		overlays += image(icon, icon_panel)
+
 	if(contents.len && !(stat & NOPOWER))
-		add_overlays(image(icon, icon_fill))
+		overlays += image(icon, icon_fill)
 
 
 /***************************
@@ -176,16 +176,16 @@
 	if(contents.len)
 		dry()
 
-/obj/machinery/smartfridge/drying_rack/on_update_icon()
+/obj/machinery/smartfridge/drying_rack/update_icon()
 	cut_overlays()
 	if(inoperable())
 		icon_state = icon_off
 	else
 		icon_state = icon_on
 	if(contents.len)
-		add_overlays("drying_rack_filled")
+		overlays += "drying_rack_filled"
 		if(!inoperable() && currently_drying)
-			add_overlays("drying_rack_drying")
+			overlays += "drying_rack_drying"
 
 /obj/machinery/smartfridge/drying_rack/proc/dry()
 	var/drying_something = FALSE //While we're here, check if anything is undried and still processing
@@ -258,7 +258,7 @@
 	if(old_stat != stat)
 		update_icon()
 
-/obj/machinery/smartfridge/on_update_icon()
+/obj/machinery/smartfridge/update_icon()
 	cut_overlays()
 	if(stat & (BROKEN|NOPOWER))
 		icon_state = icon_off
@@ -266,15 +266,15 @@
 		icon_state = icon_on
 
 	if(panel_open && icon_panel)
-		add_overlays(image(icon, icon_panel))
-	
+		overlays += image(icon, icon_panel)
+
 	if(contents.len)
 		if(contents.len <= 10)
-			add_overlays(image(icon, icon_fill10))
+			overlays += image(icon, icon_fill10)
 		else if(contents.len <= 20)
-			add_overlays(image(icon, icon_fill20))
+			overlays += image(icon, icon_fill20)
 		else
-			add_overlays(image(icon, icon_fill30))
+			overlays += image(icon, icon_fill30)
 
 /*******************
 *   Item Adding
@@ -344,7 +344,7 @@
 	if(stat & (NOPOWER|BROKEN))
 		return
 	wires.Interact(user)
-	ui_interact(user)
+	nano_ui_interact(user)
 
 
 /obj/machinery/smartfridge/proc/update_contents()
@@ -355,7 +355,7 @@
 *   SmartFridge Menu
 ********************/
 
-/obj/machinery/smartfridge/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/smartfridge/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	user.set_machine(src)
 
 	var/data[0]
@@ -419,7 +419,7 @@
 		return 1
 	return 0
 
-/obj/machinery/smartfridge/proc/throw_item()
+/obj/machinery/smartfridge/throw_item()
 	var/obj/throw_item = null
 	var/mob/living/target = locate() in view(7,src)
 	if(!target)

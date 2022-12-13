@@ -8,9 +8,9 @@
 	light_overlay = "helmet_light"
 	brightness_on = 4
 	armor = list(
-		melee = 35,
-		bullet = 30,
-		energy = 30,
+		melee = 10,
+		bullet = 7,
+		energy = 7,
 		bomb = 25,
 		bio = 100,
 		rad = 75
@@ -25,9 +25,9 @@
 	matter = list(MATERIAL_PLASTIC = 30, MATERIAL_STEEL = 25, MATERIAL_BIOMATTER = 40)
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	armor = list(
-		melee = 35,
-		bullet = 30,
-		energy = 30,
+		melee = 10,
+		bullet = 7,
+		energy = 7,
 		bomb = 25,
 		bio = 100,
 		rad = 75
@@ -45,10 +45,10 @@
 	light_overlay = "helmet_light"
 	brightness_on = 4
 	armor = list(
-		melee = 25,
-		bullet = 25,
-		energy = 25,
-		bomb = 25,
+		melee = 5,
+		bullet = 5,
+		energy = 5,
+		bomb = 10,
 		bio = 100,
 		rad = 75
 	)
@@ -63,10 +63,10 @@
 	matter = list(MATERIAL_PLASTIC = 30, MATERIAL_STEEL = 15, MATERIAL_BIOMATTER = 40)
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	armor = list(
-		melee = 25,
-		bullet = 25,
-		energy = 25,
-		bomb = 25,
+		melee = 5,
+		bullet = 5,
+		energy = 5,
+		bomb = 10,
 		bio = 100,
 		rad = 75
 	)
@@ -82,10 +82,10 @@
 	light_overlay = "helmet_light"
 	brightness_on = 4
 	armor = list(
-		melee = 25,
-		bullet = 25,
-		energy = 25,
-		bomb = 25,
+		melee = 7,
+		bullet = 5,
+		energy = 5,
+		bomb = 10,
 		bio = 200,
 		rad = 90
 	)
@@ -100,10 +100,10 @@
 	matter = list(MATERIAL_PLASTIC = 40, MATERIAL_STEEL = 15, MATERIAL_BIOMATTER = 40)
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	armor = list(
-		melee = 25,
-		bullet = 25,
-		energy = 25,
-		bomb = 25,
+		melee = 7,
+		bullet = 5,
+		energy = 5,
+		bomb = 20,
 		bio = 200,
 		rad = 90
 	)

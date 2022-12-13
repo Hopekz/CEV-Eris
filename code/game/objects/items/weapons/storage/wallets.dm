@@ -7,6 +7,7 @@
 	can_hold = list(
 		/obj/item/spacecash,
 		/obj/item/card,
+		/obj/item/toy/card,
 		/obj/item/clothing/mask/smokable/cigarette/,
 		/obj/item/device/lighting/toggleable/flashlight/pen,
 		/obj/item/seeds,
@@ -50,7 +51,7 @@
 			name = "[name] ([front_id])"
 			update_icon()
 
-/obj/item/storage/wallet/on_update_icon()
+/obj/item/storage/wallet/update_icon()
 
 	if(front_id)
 		switch(front_id.icon_state)

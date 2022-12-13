@@ -8,8 +8,8 @@ SUBSYSTEM_DEF(economy)
 	init_order = INIT_ORDER_LATELOAD
 
 	wait = 300 //Ticks once per 30 seconds
-	var/payday_interval = 1 HOURS
-	var/next_payday = 1 HOURS
+	var/payday_interval = 30 MINUTES
+	var/next_payday = 30 MINUTES
 
 /datum/controller/subsystem/economy/Initialize()
 	.=..()
@@ -27,48 +27,42 @@ SUBSYSTEM_DEF(economy)
 	var/paid_external = 0
 
 	// Departments pay to departments first
-	for(var/datum/money_account/A in department_accounts)
+	for(var/i in department_accounts)
+		var/datum/money_account/A = department_accounts[i]
+		var/datum/department/D = GLOB.all_departments[A.department_id]
+		var/datum/department/ED = GLOB.all_departments[D.funding_source]
+
 		if(!A.employer)
 			continue
 
-		var/datum/department/D = GLOB.all_departments[A.department_id]
-		var/datum/department/ED = GLOB.all_departments[A.employer]
-		var/datum/money_account/EA = get_account(ED.account_number)
-
-		if(D && (D.funding_type != FUNDING_NONE) && !A.wage_manual)
+		if(D && !A.wage_manual)
 			A.wage = D.get_total_budget()
 
 		var/amount_to_pay = A.debt + A.wage
-
 		if(amount_to_pay <= 0)
 			continue
 
-		switch(D.funding_type)
-			if(FUNDING_NONE)
-				continue
-
-			if(FUNDING_EXTERNAL)
-				deposit_to_account(A, D.funding_source, "Payroll Funding", "Hansa payroll system", amount_to_pay)
-				paid_external += amount_to_pay
-
-			if(FUNDING_INTERNAL)
-				if(amount_to_pay <= EA.money)
-					transfer_funds(EA, A, "Payroll Funding", "CEV Eris payroll system", amount_to_pay)
-					paid_internal += amount_to_pay
-					ED.total_debt -= A.debt
-					A.debt = 0
-				else
-					A.debt += A.wage
-					ED.total_debt += A.wage
-
+		if(!ED) // If no employer department found - payment is external
+			deposit_to_account(A, A.employer, "Payroll Funding", "Hansa payroll system", amount_to_pay)
+			paid_external += amount_to_pay
+			continue
+		else
+			var/datum/money_account/EA = get_account(ED.account_number)
+			if(amount_to_pay <= EA.money)
+				transfer_funds(EA, A, "Payroll Funding", "CEV Eris payroll system", amount_to_pay)
+				paid_internal += amount_to_pay
+				ED.total_debt -= A.debt
+				A.debt = 0
+			else
+				A.debt += A.wage
+				ED.total_debt += A.wage
 
 	// Departments pay to the crew
 	for(var/datum/money_account/A in personal_accounts)
 		if(!A.employer)
 			continue
-		
-		var/amount_to_pay = A.debt + A.wage
 
+		var/amount_to_pay = A.debt + A.wage
 		if(amount_to_pay <= 0)
 			continue
 
@@ -100,7 +94,7 @@ SUBSYSTEM_DEF(economy)
 					payroll_failure_mail(R, A, D.total_debt)
 
 	total_paid = paid_internal + paid_external
-	command_announcement.Announce("Hourly crew wages have been paid, please check your email for details. In total the crew of CEV Eris have earned [total_paid] credits, including [paid_external] credits from external sources.\n Please contact your Department Heads in case of errors or missing payments.", "Dispensation")
+	command_announcement.Announce("Half hourly crew wages have been paid, please check your email for details. In total the crew of CEV Eris have earned [total_paid] credits, including [paid_external] credits from external sources.\n Please contact your Department Heads in case of errors or missing payments.", "Dispensation")
 
 
 //Sent to a head of staff when their department account fails to pay out wages

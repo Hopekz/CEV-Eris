@@ -18,14 +18,16 @@
 	price_tag = 1500
 	auto_eject_sound = 'sound/weapons/smg_empty_alarm.ogg'
 	fire_sound = 'sound/weapons/guns/fire/pistol_fire.ogg'
-	damage_multiplier = 1.5
-	penetration_multiplier = 0.9
-	recoil_buildup = 3
+	damage_multiplier = 1.3
+	penetration_multiplier = 0
+	init_recoil = HANDGUN_RECOIL(0.7)
 	gun_tags = list(GUN_SILENCABLE)
 
 	spawn_tags = SPAWN_TAG_FS_PROJECTILE
+	gun_parts = list(/obj/item/part/gun/frame/paco = 1, /obj/item/part/gun/grip/rubber = 1, /obj/item/part/gun/mechanism/pistol = 1, /obj/item/part/gun/barrel/pistol = 1)
+	serial_type = "FS"
 
-/obj/item/gun/projectile/paco/on_update_icon()
+/obj/item/gun/projectile/paco/update_icon()
 	..()
 
 	var/iconstring = initial(icon_state)
@@ -47,3 +49,12 @@
 /obj/item/gun/projectile/paco/Initialize()
 	. = ..()
 	update_icon()
+
+/obj/item/part/gun/frame/paco
+	name = "Paco frame"
+	desc = "A Paco pistol frame. A reliable companion in the field."
+	icon_state = "frame_paco"
+	resultvars = list(/obj/item/gun/projectile/paco)
+	gripvars = list(/obj/item/part/gun/grip/rubber)
+	mechanismvar = /obj/item/part/gun/mechanism/pistol
+	barrelvars = list(/obj/item/part/gun/barrel/pistol)

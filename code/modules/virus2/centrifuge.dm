@@ -27,16 +27,16 @@
 
 	src.attack_hand(user)
 
-/obj/machinery/computer/centrifuge/on_update_icon()
+/obj/machinery/computer/centrifuge/update_icon()
 	..()
 	if(! (stat & (BROKEN|NOPOWER)) && (isolating || curing))
 		icon_state = "centrifuge_moving"
 
 /obj/machinery/computer/centrifuge/attack_hand(var/mob/user as mob)
 	if(..()) return
-	ui_interact(user)
+	nano_ui_interact(user)
 
-/obj/machinery/computer/centrifuge/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/computer/centrifuge/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	user.set_machine(src)
 
 	var/data[0]

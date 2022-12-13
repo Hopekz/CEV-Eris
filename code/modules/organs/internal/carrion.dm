@@ -53,6 +53,7 @@
 	var/list/spiderlist = list()
 	var/list/active_spiders = list()
 	var/geneticpoints = 10
+	var/autoassign_groups = FALSE
 
 	var/mob/living/simple_animal/spider_core/associated_spider = null
 
@@ -96,33 +97,47 @@
 		active_spiders += spider
 		spider.owner_core = src
 		spider.update_owner_mob()
+		if(autoassign_groups)
+			var/obj/item/implant/carrion_spider/A
+			for(var/obj/item/implant/carrion_spider/F in active_spiders)
+				if(istype(F, spider.type))
+					A = F
+					spider.assigned_groups = A.assigned_groups
+					break
 
 		owner.put_in_active_hand(spider)
 
-/obj/item/organ/internal/carrion/core/ui_interact(mob/user, ui_key, datum/nanoui/ui, force_open, datum/nanoui/master_ui, datum/topic_state/state)
+/obj/item/organ/internal/carrion/core/nano_ui_interact(mob/user, ui_key, datum/nanoui/ui, force_open, datum/nanoui/master_ui, datum/nano_topic_state/state)
 	var/list/data = list()
 
 	var/list/spiders_in_list = list()
 	for(var/item in active_spiders)
 		var/obj/item/implant/carrion_spider/S = item
 		var/turf/T = get_turf(S)
+		var/area/area = get_area(S)
+		var/location_name = area.name
 		var/spider_location = "Unknown location"
 		if(T)
-			spider_location = "[S.loc]([T.x]:[T.y]:[T.z])"
+			spider_location = "[location_name], [S.loc]([T.x]:[T.y]:[T.z])"
 		spiders_in_list += list(
 			list(
 				"name" = initial(S.name),
 				"location" = "[spider_location]",
 				"spider" = "\ref[item]",
-				"implanted" = S.wearer
+				"implanted" = S.wearer,
+				"assigned_group_1" = S.check_group(SPIDER_GROUP_1),
+				"assigned_group_2" = S.check_group(SPIDER_GROUP_2),
+				"assigned_group_3" = S.check_group(SPIDER_GROUP_3),
+				"assigned_group_4" = S.check_group(SPIDER_GROUP_4)
 			)
 		)
 
 	data["list_of_spiders"] = spiders_in_list
+	data["autoassigning"] = autoassign_groups
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if(!ui)
-		ui = new(user, src, ui_key, "carrion_spiders.tmpl", "Carrion Spiders", 400, 400)
+		ui = new(user, src, ui_key, "carrion_spiders.tmpl", "Carrion Spiders", 600, 400)
 		ui.set_initial_data(data)
 		ui.open()
 		ui.set_auto_update(1)
@@ -132,7 +147,7 @@
 		var/obj/item/implant/carrion_spider/activated_spider = locate(href_list["activate_spider"]) in active_spiders
 		if(activated_spider)
 			activated_spider.activate()
-	
+
 	if(href_list["pop_out_spider"])
 		var/obj/item/implant/carrion_spider/activated_spider = locate(href_list["pop_out_spider"]) in active_spiders
 		if(activated_spider)
@@ -141,8 +156,55 @@
 	if(href_list["activate_all"])
 		for(var/spider in active_spiders)
 			var/obj/item/implant/carrion_spider/CS = spider
-			if(istype(CS))
+			if(istype(CS) && !CS.ignore_activate_all)
 				CS.activate()
+
+	if(href_list["activate_group_1"])
+		for(var/spider in active_spiders)
+			var/obj/item/implant/carrion_spider/CS = spider
+			if(istype(CS) && CS.check_group(SPIDER_GROUP_1))
+				CS.activate()
+
+	if(href_list["activate_group_2"])
+		for(var/spider in active_spiders)
+			var/obj/item/implant/carrion_spider/CS = spider
+			if(istype(CS) && CS.check_group(SPIDER_GROUP_2))
+				CS.activate()
+
+	if(href_list["activate_group_3"])
+		for(var/spider in active_spiders)
+			var/obj/item/implant/carrion_spider/CS = spider
+			if(istype(CS) && CS.check_group(SPIDER_GROUP_3))
+				CS.activate()
+
+	if(href_list["activate_group_4"])
+		for(var/spider in active_spiders)
+			var/obj/item/implant/carrion_spider/CS = spider
+			if(istype(CS) && CS.check_group(SPIDER_GROUP_4))
+				CS.activate()
+
+	if(href_list["toggle_group_1"])
+		var/obj/item/implant/carrion_spider/activated_spider = locate(href_list["toggle_group_1"]) in active_spiders
+		if(activated_spider)
+			activated_spider.toggle_group(SPIDER_GROUP_1)
+
+	if(href_list["toggle_group_2"])
+		var/obj/item/implant/carrion_spider/activated_spider = locate(href_list["toggle_group_2"]) in active_spiders
+		if(activated_spider)
+			activated_spider.toggle_group(SPIDER_GROUP_2)
+
+	if(href_list["toggle_group_3"])
+		var/obj/item/implant/carrion_spider/activated_spider = locate(href_list["toggle_group_3"]) in active_spiders
+		if(activated_spider)
+			activated_spider.toggle_group(SPIDER_GROUP_3)
+
+	if(href_list["toggle_group_4"])
+		var/obj/item/implant/carrion_spider/activated_spider = locate(href_list["toggle_group_4"]) in active_spiders
+		if(activated_spider)
+			activated_spider.toggle_group(SPIDER_GROUP_4)
+
+	if(href_list["toggle_autoassign"])
+		autoassign_groups = !autoassign_groups
 
 	if(href_list["P"])
 		purchasePower(href_list["P"])
@@ -168,7 +230,7 @@
 	set category = "Carrion"
 	set name = "Open spider menu"
 
-	ui_interact(owner)
+	nano_ui_interact(owner)
 
 /obj/item/organ/internal/carrion/core/removed(mob/living/user)
 	if(!associated_spider && owner)
@@ -181,14 +243,6 @@
 		..()
 		forceMove(associated_spider)
 
-/obj/item/organ/internal/carrion/core/proc/GetDNA(var/dna_owner)
-	var/datum/dna/chosen_dna
-	for(var/datum/dna/DNA in absorbed_dna)
-		if(dna_owner == DNA.real_name)
-			chosen_dna = DNA
-			break
-	return chosen_dna
-
 /obj/item/organ/internal/carrion/core/proc/carrion_transform()
 	set category = "Carrion"
 	set name = "Transform(5)"
@@ -196,37 +250,31 @@
 	if (owner.transforming)
 		return
 
-	var/list/names = list()
-
 	if (!owner)
 		return
 
-	for(var/datum/dna/DNA in absorbed_dna)
-		names += "[DNA.real_name]"
-
-	var/S = input("Select the target DNA: ", "Target DNA", null) as null|anything in names
 	if(!absorbed_dna.len)
 		to_chat(owner, SPAN_WARNING("You have no DNA absorbed!"))
 		return
 
-	var/datum/dna/chosen_dna = GetDNA(S)
-	if(!chosen_dna)
+	var/S = input("Select the target DNA: ", "Target DNA", null) as null|anything in absorbed_dna
+
+	if(!S)
 		return
 
 	if(!owner.check_ability(5))
 		return
 
-	if(HUSK in owner.mutations)
-		owner.mutations -= HUSK
-		if(istype(owner))
-			owner.update_body(0)
+//	if(HUSK in owner.mutations)
+//		owner.mutations -= HUSK
+//		if(istype(owner))
+//			owner.update_body(0)
 
 	owner.visible_message(SPAN_WARNING("[owner] transforms!"))
-	owner.dna = chosen_dna.Clone()
-	owner.real_name = chosen_dna.real_name
+	owner.real_name = S
+	owner.dna_trace = sha1(S)
+	owner.fingers_trace = md5(S)
 	owner.flavor_text = ""
-	owner.UpdateAppearance()
-	domutcheck(owner, null)
 
 	return 1
 
@@ -322,7 +370,7 @@
 						blacklist += to_blacklist
 						continue
 					if (istype(to_blacklist, /obj/item/organ/internal/brain/))
-						blacklist += to_blacklist// removing bones from a valid_organs list based on			
+						blacklist += to_blacklist// removing bones from a valid_organs list based on
 				var/list/valid_organs = E.internal_organs - blacklist// E.internal_organs gibs the victim.
 				if (!valid_organs.len)
 					visible_message(SPAN_DANGER("[owner] tears up [H]'s [E.name]!"))
@@ -335,7 +383,7 @@
 			else
 				tearing = FALSE
 		else
-			to_chat(owner, SPAN_WARNING("You can only tear flesh out of humanoids!"))	
+			to_chat(owner, SPAN_WARNING("You can only tear flesh out of humanoids!"))
 			return
 
 	if(istype(food, /obj/item/organ) || istype(food, /obj/item/reagent_containers/food/snacks/meat))

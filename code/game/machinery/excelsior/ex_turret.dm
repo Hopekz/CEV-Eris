@@ -48,7 +48,7 @@
 		return 0
 	return 1
 
-/obj/machinery/porta_turret/excelsior/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/porta_turret/excelsior/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	var/data[0]
 	data["access"] = !isLocked(user)
 	data["locked"] = locked
@@ -131,11 +131,11 @@
 	last_target = null
 	raised = TRUE
 
-/obj/machinery/porta_turret/excelsior/on_update_icon()
-	cut_overlays()
+/obj/machinery/porta_turret/excelsior/update_icon()
+	overlays.Cut()
 
 	if(!(stat & BROKEN))
-		add_overlays(image("turret_gun"))
+		overlays += image("turret_gun")
 
 
 

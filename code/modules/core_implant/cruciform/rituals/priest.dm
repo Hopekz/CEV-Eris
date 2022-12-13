@@ -11,8 +11,17 @@
 	category = "Priest"
 
 /datum/ritual/cruciform/priest/acolyte
+	name = "acolyte"
+	phrase = null
+	desc = ""
+	category = "Acolyte"
 
 /datum/ritual/targeted/cruciform/priest/acolyte
+	name = "acolyte targeted"
+	phrase = null
+	desc = ""
+	category = "Acolyte"
+
 
 /datum/ritual/cruciform/priest/acolyte/epiphany
 	name = "Epiphany"
@@ -55,43 +64,6 @@
 	name = "banish"
 	phrase = "Et ne inducas nos in tentationem, sed libera nos a malo"
 */
-
-/datum/ritual/cruciform/priest/acolyte/ejection
-	name = "Deprivation"
-	phrase = "Et revertatur pulvis in terram suam unde erat et spiritus redeat ad Deum qui dedit illum"
-	desc = "This litany will command cruciform to detach from bearer, if the one bearing it is dead. You will be able to use it in scanner for Resurrection."
-
-/datum/ritual/cruciform/priest/acolyte/ejection/perform(mob/living/carbon/human/user, obj/item/implant/core_implant/C)
-	var/obj/item/implant/core_implant/cruciform/CI = get_implant_from_victim(user, /obj/item/implant/core_implant/cruciform, FALSE)
-
-	if(!CI)
-		fail("There is no cruciform on this one", user, C)
-		return FALSE
-
-	if(!CI.wearer)
-		fail("Cruciform is not installed.", user, C)
-		return FALSE
-
-	var/mob/M = CI.wearer
-
-	if(ishuman(M) && M.is_dead())
-		var/mob/living/carbon/human/H = M
-		var/obj/item/organ/external/E = H.organs_by_name[BP_CHEST]
-		E.take_damage(15)
-		H.custom_pain("You feel the cruciform ripping out of your chest!",1)
-		CI.name = "[M]'s Cruciform"
-		CI.uninstall()
-		return TRUE
-
-	else if(ismob(M) && M.is_dead()) //Cruciforms can't normally be placed on non-humans, but this is still here for sanity purposes.
-		CI.name = "[M]'s Cruciform"
-		CI.uninstall()
-		return TRUE
-
-	else
-		fail("Deprivation does not work upon the living.", user, C)
-		return FALSE
-
 
 /datum/ritual/cruciform/priest/acolyte/unupgrade
 	name = "Asacris"
@@ -142,7 +114,7 @@
 /datum/ritual/cruciform/priest/acolyte/short_boost/perform(mob/living/carbon/human/user, obj/item/implant/core_implant/C)
 	var/list/people_around = list()
 	for(var/mob/living/carbon/human/H in view(user))
-		if(H != user && !isdeaf(H))
+		if(H != user && !isdeaf(H) && !get_active_mutation(H, MUTATION_ATHEIST))
 			people_around.Add(H)
 
 	if(people_around.len > 0)
@@ -211,8 +183,11 @@
 	var/obj/item/implant/core_implant/CI = targets[1]
 
 	if(!CI.active || !CI.wearer)
-
 		fail("Cruciform not found.", user, C)
+		return FALSE
+
+	if(get_active_mutation(CI.wearer, MUTATION_GODBLOOD))
+		fail("[CI.wearer]\'s mutated flesh rejects your will.", user, C)
 		return FALSE
 
 	var/mob/living/M = CI.wearer
@@ -330,13 +305,6 @@
 		return TRUE
 
 	return FALSE
-
-/datum/ritual/cruciform/priest/offering/call_for_arms
-	name = "Call for arms"
-	phrase = "Pater da mihi fortitudinem cladem ad malum."
-	desc = "Ask the Eye of the Protector to give you weapons to fight evil. You must offer 40 metal, 20 plasteel and 150 biomatter."
-	req_offerings = list(/obj/item/stack/material/plasteel = 20, /obj/item/stack/material/steel = 40, /obj/item/stack/material/biomatter = 150)
-	miracles = list(ARMAMENTS)
 
 /datum/ritual/cruciform/priest/offering/divine_intervention
 	name = "Divine intervention"
@@ -473,6 +441,10 @@
 		fail("You don\'t have the authority for this.", user, C)
 		return FALSE
 
+	if(get_active_mutation(CI.wearer, MUTATION_GODBLOOD))
+		fail("[CI.wearer]\'s mutated flesh rejects your will.", user, C)
+		return FALSE
+
 	CI.security_clearance = CLEARANCE_NONE
 	return TRUE
 
@@ -500,6 +472,10 @@
 		fail("You don't have the authority for this.", user, C)
 		return FALSE
 
+	if(get_active_mutation(CI.wearer, MUTATION_GODBLOOD))
+		fail("[CI.wearer]\'s mutated flesh rejects your will.", user, C)
+		return FALSE
+
 	CI.remove_specialization()
 	CI.security_clearance = CLEARANCE_NONE
 	set_personal_cooldown(user)
@@ -512,3 +488,23 @@
 	if(index == 1 && target.address == text && target.active)
 		if(target.wearer && target.wearer.stat != DEAD)
 			return target
+
+/datum/ritual/cruciform/priest/acolyte/buy_item
+	name = "Order armaments"
+	phrase = "Et qui non habet, vendat tunicam suam et emat gladium."
+	desc = "Allows you to spend armament points to unlock a NT disk."
+	success_message = "Your prayers have been heard."
+	fail_message = "Your prayers have not been answered."
+	power = 20
+
+/datum/ritual/cruciform/priest/acolyte/buy_item/perform(mob/living/carbon/human/H, obj/item/implant/core_implant/C, targets)
+	var/list/OBJS = get_front(H)
+
+	var/obj/machinery/power/eotp/EOTP = locate(/obj/machinery/power/eotp) in OBJS
+	if(!EOTP)
+		fail("You must be in front of the Eye of the Protector.", H, C)
+		return FALSE
+
+	eotp.nano_ui_interact(H)
+	return TRUE
+

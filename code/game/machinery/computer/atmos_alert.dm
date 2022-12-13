@@ -23,9 +23,9 @@ var/global/list/minor_air_alarms = list()
 /obj/machinery/computer/atmos_alert/attack_hand(mob/user)
 	if(..())
 		return
-	ui_interact(user)
+	nano_ui_interact(user)
 
-/obj/machinery/computer/atmos_alert/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = NANOUI_FOCUS)
+/obj/machinery/computer/atmos_alert/nano_ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = NANOUI_FOCUS)
 	var/data[0]
 	var/major_alarms[0]
 	var/minor_alarms[0]
@@ -46,7 +46,7 @@ var/global/list/minor_air_alarms = list()
 		ui.open()
 		ui.set_auto_update(1)
 
-/obj/machinery/computer/atmos_alert/on_update_icon()
+/obj/machinery/computer/atmos_alert/update_icon()
 	if(!(stat & (NOPOWER|BROKEN)))
 		if(atmosphere_alarm.has_major_alarms(get_z(src)))
 			icon_screen = "alert:2"

@@ -24,7 +24,7 @@
 			sensors = S
 			break
 
-/obj/machinery/computer/sensors/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/computer/sensors/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	if(!linked)
 		return
 
@@ -76,7 +76,7 @@
 		user.set_machine(src)
 		if(linked)
 			user.reset_view(linked)
-	ui_interact(user)
+	nano_ui_interact(user)
 
 /obj/machinery/computer/sensors/Topic(href, href_list, state)
 	if(..())
@@ -149,7 +149,7 @@
 			return 0
 	return 1
 
-/obj/machinery/shipsensors/on_update_icon()
+/obj/machinery/shipsensors/update_icon()
 	if(use_power)
 		icon_state = "sensors"
 	else

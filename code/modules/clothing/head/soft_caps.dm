@@ -81,15 +81,15 @@
 	icon_state = "rainbowsoft"
 
 /obj/item/clothing/head/soft/sec
-	name = "security cap"
-	initial_name = "security cap"
-	desc = "A field cap in tasteful red color."
+	name = "NanoTrasen security cap"
+	initial_name = "Nanotrasen security cap"
+	desc = "A washed out red cap bearing the security department logo of the long defunct nanotrasen corporation"
 	icon_state = "secsoft"
 
 /obj/item/clothing/head/soft/sec/corp
 	name = "corporate security cap"
 	initial_name = "corporate security cap"
-	desc = "It's field cap in corporate colors."
+	desc = "A field cap in corporate colors."
 	icon_state = "corpsoft"
 
 // S E R B I A //
@@ -120,7 +120,7 @@
 	desc = "A field cap for officers."
 	icon_state = "sargesoft"
 
-// M O E B I U S //m
+// M O E B I U S //
 
 /obj/item/clothing/head/soft/medical
 	name = "medical cap"

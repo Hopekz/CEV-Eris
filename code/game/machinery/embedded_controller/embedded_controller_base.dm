@@ -34,9 +34,9 @@ obj/machinery/embedded_controller/radio/Destroy()
 	if(!user.IsAdvancedToolUser())
 		return 0
 
-	src.ui_interact(user)
+	src.nano_ui_interact(user)
 
-/obj/machinery/embedded_controller/ui_interact()
+/obj/machinery/embedded_controller/nano_ui_interact()
 	return
 
 /obj/machinery/embedded_controller/radio
@@ -57,7 +57,7 @@ obj/machinery/embedded_controller/radio/Destroy()
 	. = ..()
 	set_frequency(frequency)
 
-/obj/machinery/embedded_controller/radio/on_update_icon()
+/obj/machinery/embedded_controller/radio/update_icon()
 	if(on && program)
 		if(program.memory["processing"])
 			icon_state = "airlock_control_process"

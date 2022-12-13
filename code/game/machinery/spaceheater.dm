@@ -5,6 +5,7 @@
 	icon_state = "sheater0"
 	name = "space heater"
 	desc = "Made by Space Amish using traditional space techniques, this heater is guaranteed not to set the ship on fire."
+	description_info = "Can have its temperature adjusted by opening the panel with a screwdriver and clicking."
 	var/obj/item/cell/large/cell
 	var/on = FALSE
 	var/set_temperature = T0C + 50	//K
@@ -25,8 +26,8 @@
 		cell = null
 		update_icon()
 
-/obj/machinery/space_heater/on_update_icon()
-	cut_overlays()
+/obj/machinery/space_heater/update_icon()
+	overlays.Cut()
 	icon_state = "sheater[on]"
 	if(panel_open)
 		overlays  += "sheater-open"

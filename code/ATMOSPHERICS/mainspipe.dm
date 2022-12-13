@@ -119,9 +119,9 @@
 		nodes.len = 2
 		..()
 		switch(dir)
-			if(SOUTH || NORTH)
+			if(SOUTH, NORTH)
 				initialize_mains_directions = SOUTH|NORTH
-			if(EAST || WEST)
+			if(EAST, WEST)
 				initialize_mains_directions = EAST|WEST
 			if(NORTHEAST)
 				initialize_mains_directions = NORTH|EAST
@@ -564,7 +564,7 @@ obj/machinery/atmospherics/mains_pipe/valve
 				break
 
 		if(animation)
-			FLICK("[hide?"h":""]mvalve[src.open][!src.open]", src)
+			flick("[hide?"h":""]mvalve[src.open][!src.open]", src)
 		else
 			icon_state = "[hide?"h":""]mvalve[open]"
 
@@ -681,7 +681,7 @@ obj/machinery/atmospherics/mains_pipe/valve
 					break
 
 			if(animation)
-				FLICK("[hide?"h":""]dvalve[src.open][!src.open]", src)
+				flick("[hide?"h":""]dvalve[src.open][!src.open]", src)
 			else
 				icon_state = "[hide?"h":""]dvalve[open]"
 

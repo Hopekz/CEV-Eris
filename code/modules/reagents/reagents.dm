@@ -59,7 +59,7 @@
 	// Catalog stuff
 	var/appear_in_default_catalog = TRUE
 	var/reagent_type = "FIX DAT SHIT IMIDIATLY"
-	var/price_per_unit = 1 //por cargo rework
+	var/price_per_unit = 0.125
 
 /datum/reagent/proc/remove_self(amount) // Shortcut
 	holder.remove_reagent(id, amount)
@@ -83,7 +83,7 @@
 				removed = CLAMP(metabolism * volume/(overdose/2) * M.get_blood_circulation()/100, metabolism * REAGENTS_MIN_EFFECT_MULTIPLIER, metabolism * REAGENTS_MAX_EFFECT_MULTIPLIER)
 			else
 				removed = CLAMP(metabolism * volume/(REAGENTS_OVERDOSE/2) * M.get_blood_circulation()/100, metabolism * REAGENTS_MIN_EFFECT_MULTIPLIER, metabolism * REAGENTS_MAX_EFFECT_MULTIPLIER)
-	removed = round(removed, 0.01)
+	removed = max(round(removed, 0.01), 0.05)
 	removed = min(removed, volume)
 
 	return removed
@@ -107,7 +107,7 @@
 				removed = CLAMP(metabolism * volume/(overdose/2) * consumer.get_blood_circulation()/100 * calculated_buff, metabolism * REAGENTS_MIN_EFFECT_MULTIPLIER, metabolism * REAGENTS_MAX_EFFECT_MULTIPLIER)
 			else
 				removed = CLAMP(metabolism * volume/(REAGENTS_OVERDOSE/2) * consumer.get_blood_circulation()/100 * calculated_buff, metabolism * REAGENTS_MIN_EFFECT_MULTIPLIER, metabolism * REAGENTS_MAX_EFFECT_MULTIPLIER)
-	removed = round(removed, 0.01)
+	removed = max(round(removed, 0.01), 0.05)
 	removed = min(removed, volume)
 
 	return removed
@@ -215,24 +215,28 @@
 	return null
 
 // Addiction
-/datum/reagent/proc/addiction_act_stage1(mob/living/carbon/M)
+// Addiction
+/datum/reagent/proc/addiction_act_stage1(mob/living/carbon/human/M)
 	if(prob(30))
 		to_chat(M, SPAN_NOTICE("You feel like having some [name] right about now."))
 
-/datum/reagent/proc/addiction_act_stage2(mob/living/carbon/M)
+/datum/reagent/proc/addiction_act_stage2(mob/living/carbon/human/M)
 	if(prob(30))
 		to_chat(M, SPAN_NOTICE("You feel like you need [name]. You just can't get enough."))
 
-/datum/reagent/proc/addiction_act_stage3(mob/living/carbon/M)
+/datum/reagent/proc/addiction_act_stage3(mob/living/carbon/human/M)
 	if(prob(30))
 		to_chat(M, SPAN_DANGER("You have an intense craving for [name]."))
+		M.sanity.changeLevel(-5)
 
-/datum/reagent/proc/addiction_act_stage4(mob/living/carbon/M)
+/datum/reagent/proc/addiction_act_stage4(mob/living/carbon/human/M)
 	if(prob(30))
 		to_chat(M, SPAN_DANGER("You're not feeling good at all! You really need some [name]."))
+		M.sanity.changeLevel(-10)
 
-/datum/reagent/proc/addiction_end(mob/living/carbon/M)
+/datum/reagent/proc/addiction_end(mob/living/carbon/human/M)
 	to_chat(M, SPAN_NOTICE("You feel like you've gotten over your need for [name]."))
+	M.sanity.changeLevel(15)
 
 // Withdrawal
 /datum/reagent/proc/withdrawal_start(mob/living/carbon/M)

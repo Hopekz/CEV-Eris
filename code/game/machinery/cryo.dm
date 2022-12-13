@@ -69,12 +69,12 @@
 		go_out()
 
 /obj/machinery/atmospherics/unary/cryo_cell/attack_hand(mob/user)
-	ui_interact(user)
+	nano_ui_interact(user)
 
  /**
-  * The ui_interact proc is used to open and update Nano UIs
-  * If ui_interact is not used then the UI will not update correctly
-  * ui_interact is currently defined for /atom/movable (which is inherited by /obj and /mob)
+  * The nano_ui_interact proc is used to open and update Nano UIs
+  * If nano_ui_interact is not used then the UI will not update correctly
+  * nano_ui_interact is currently defined for /atom/movable (which is inherited by /obj and /mob)
   *
   * @param user /mob The mob who is interacting with this ui
   * @param ui_key string A string key to use for this ui. Allows for multiple unique uis on one obj/mob (defaut value "main")
@@ -82,7 +82,7 @@
   *
   * @return nothing
   */
-/obj/machinery/atmospherics/unary/cryo_cell/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/atmospherics/unary/cryo_cell/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 
 	if(user == occupant || user.stat)
 		return
@@ -193,31 +193,31 @@
 			)
 	return
 
-/obj/machinery/atmospherics/unary/cryo_cell/on_update_icon()
-	cut_overlays()
+/obj/machinery/atmospherics/unary/cryo_cell/update_icon()
+	overlays.Cut()
 	icon_state = "pod[on]"
 	var/image/I
 
 	I = image(icon, "pod[on]_top")
 	I.layer = WALL_OBJ_LAYER
 	I.pixel_z = 32
-	add_overlays(I)
+	overlays += I
 
 	if(occupant)
 		var/image/pickle = image(occupant.icon, occupant.icon_state)
 		pickle.overlays = occupant.overlays
 		pickle.pixel_z = 18
 		pickle.layer = WALL_OBJ_LAYER
-		add_overlays(pickle)
+		overlays += pickle
 
 	I = image(icon, "lid[on]")
 	I.layer = WALL_OBJ_LAYER
-	add_overlays(I)
+	overlays += I
 
 	I = image(icon, "lid[on]_top")
 	I.layer = WALL_OBJ_LAYER
 	I.pixel_z = 32
-	add_overlays(I)
+	overlays += I
 
 /obj/machinery/atmospherics/unary/cryo_cell/proc/process_occupant()
 	if(air_contents.total_moles < 10)

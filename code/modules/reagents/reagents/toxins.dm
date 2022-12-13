@@ -307,16 +307,99 @@
 		var/mob/living/carbon/human/H = M
 		if(H.species.flags & NO_SCAN)
 			return
-	if(M.dna)
-		if(prob(effect_multiplier * 0.01)) // Approx. one mutation per 10 injected/20 ingested/30 touching units
-			randmuti(M)
-			if(prob(98))
-				randmutb(M)
-			else
-				randmutg(M)
-			domutcheck(M, null)
-			M.UpdateAppearance()
 	M.apply_effect(1 * effect_multiplier, IRRADIATE, 0)
+
+/datum/reagent/toxin/mutagen/moeball
+	name = "mass of still twitching meat"
+	id = "moeball"
+	description = "Will cause mutations."
+	taste_description = "slimy twitching flesh"
+	taste_mult = 1.2
+	reagent_state = SOLID
+	color = "#5C4033"
+	var/gene_type
+	var/gene_value
+	metabolism = REM * 2
+	scannable = TRUE
+
+/datum/reagent/toxin/mutagen/moeball/proc/isWorm()
+	name = "mass of still whirling worms"
+	description = "Will remove mutations."
+	taste_description = "slimy wriggling worms"
+
+/datum/reagent/toxin/mutagen/moeball/initialize_data(list/newdata) // Called when the reagent is created.
+	if(!isnull(newdata))
+		data = newdata
+		gene_type = newdata["gene_type"]
+		gene_value = newdata["gene_value"]
+		if(!gene_type) // No mutation value means it is worms not flesh
+			isWorm()
+	return
+
+/datum/reagent/toxin/mutagen/moeball/get_data()
+	return list("gene_type" = gene_type, "gene_value" = gene_value)
+
+/datum/reagent/toxin/mutagen/moeball/mix_data(var/newdata, var/newamount)
+	if(!(newdata["gene_value"] == data["gene_value"]))
+		gene_value = pick(subtypesof(/datum/mutation/t0))
+		gene_type = "mutation"
+	else if(!newdata["gene_type"] || !data["gene_type"])
+		gene_type = null
+		isWorm()
+
+/datum/reagent/toxin/mutagen/moeball/affect_touch(mob/living/carbon/M, alien, effect_multiplier)
+	if(prob(10))
+		affect_blood(M, alien, effect_multiplier)
+
+/datum/reagent/toxin/mutagen/moeball/proc/mutate(mob/living/carbon/human/H, alien, effect_multiplier)
+	if(gene_type)
+		switch(gene_type)
+			if("mutation")
+				var/datum/mutation/U = gene_value
+				U.imprint(H)
+
+			if("b_type")
+				H.b_type = gene_value
+				H.fixblood()
+				H.adjustOxyLoss(rand(10, 50))
+
+			if("real_name")
+				H.real_name = gene_value
+				H.dna_trace = sha1(gene_value)
+				H.fingers_trace = md5(gene_value)
+
+			if("species")
+				var/datum/species/S = gene_value
+				H.set_species(S.name)
+		to_chat(H, SPAN_DANGER("Some part of you feels wrong, like it's not you anymore."))
+	else
+		var/datum/mutation/U = gene_value ? gene_value : (H.active_mutations.len ? pick(H.active_mutations) : null)
+		U?.cleanse(H)
+
+	// Neither safe nor pleasant experience
+	H.adjustToxLoss(rand(5, 25))
+	H.sanity.changeLevel(-20)
+
+/datum/reagent/toxin/mutagen/moeball/affect_blood(mob/living/carbon/M, alien, effect_multiplier)
+	if(prob(15))
+		to_chat(M, SPAN_DANGER("You feel your veins crackling and sending chills all over your skin!"))
+		M.adjustToxLoss(rand(4, 8) * effect_multiplier)
+		M.adjustOxyLoss(rand(5, 20))
+	if(dose > 3 && ishuman(M))
+		mutate(M, alien, effect_multiplier)
+		dose = dose - 3
+		if(prob(50 - M.stats.getStat(STAT_TGH)))
+			M.vomit() // It really isn't going to help
+
+/datum/reagent/toxin/mutagen/moeball/affect_ingest(mob/living/carbon/M, alien, effect_multiplier)
+	if(prob(10))
+		to_chat(M, SPAN_DANGER("Your insides are burning!"))
+		M.adjustToxLoss(rand(2, 6) * effect_multiplier)
+	if(dose > 4 && ishuman(M))
+		mutate(M, alien, effect_multiplier)
+		dose = dose - 4
+		if(prob(100 - M.stats.getStat(STAT_TGH)))
+			M.vomit()
 
 /datum/reagent/medicine/slimejelly
 	name = "Slime Jelly"
@@ -438,7 +521,7 @@
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(M)
 	M.canmove = 0
 	M.icon = null
-	M.cut_overlays()
+	M.overlays.Cut()
 	M.invisibility = 101
 	for(var/obj/item/W in M)
 		if(istype(W, /obj/item/implant)) //TODO: Carn. give implants a dropped() or something
@@ -473,6 +556,7 @@
 	color = "#a37d9c"
 	metabolism = REM * 2
 	overdose = REAGENTS_OVERDOSE/3
+	addiction_chance = 0
 	nerve_system_accumulations = 10
 	strength = 0.01
 	sanityloss = 1
@@ -486,7 +570,7 @@
 	M.stats.addTempStat(STAT_COG, STAT_LEVEL_ADEPT * effect_multiplier, STIM_TIME, "pararein")
 	sanity_gain = 1.2
 	if(prob(10))
-		to_chat(M, SPAN_WARNING ("you feel like your mind is boiling and the blood in your veins is coming alive!"))
+		to_chat(M, SPAN_WARNING ("You feel like your mind is boiling and the blood in your veins is coming alive!"))
 
 /datum/reagent/toxin/aranecolmin
 	name = "Aranecolmin"
@@ -498,7 +582,7 @@
 	overdose = REAGENTS_OVERDOSE
 	strength = 0.1
 	metabolism = REM * 2
-	addiction_chance = 10
+	addiction_chance = 0
 	nerve_system_accumulations = 5
 
 /datum/reagent/toxin/aranecolmin/affect_blood(mob/living/carbon/M, alien, effect_multiplier)

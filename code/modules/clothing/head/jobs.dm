@@ -54,12 +54,14 @@
 	flags_inv = BLOCKHAIR
 	body_parts_covered = HEAD
 	spawn_blacklisted = TRUE
+	style_coverage = COVERS_HAIR
 
 /obj/item/clothing/head/preacher
 	name = "preacher hat"
 	desc = "Useful for hiding disdainful eyes from the godless masses."
 	icon_state = "church_hat"
 	spawn_blacklisted = TRUE
+	style_coverage = COVERS_EYES|COVERS_HAIR
 
 //Mime
 /obj/item/clothing/head/beret
@@ -68,23 +70,24 @@
 	icon_state = "beret"
 	body_parts_covered = 0
 	spawn_blacklisted = TRUE
+	style_coverage = COVERS_HAIR
 
 //Security
 /obj/item/clothing/head/beret/sec/navy/officer
 	name = "Operative beret"
-	desc = "A navy blue beret with an Operative's rank emblem. For officers that are more inclined towards style than safety."
+	desc = "A navy blue beret with an Operative's rank emblem. For operatives that are more inclined towards style than safety."
 	icon_state = "beret_navy_officer"
 	spawn_blacklisted = TRUE
 
 /obj/item/clothing/head/beret/sec/navy/hos
 	name = "Commander beret"
-	desc = "Grey beret with a Commander's rank emblem. For officers that are more inclined towards style than safety."
+	desc = "Grey beret with a Commander's rank emblem. For commanders that are more inclined towards style than safety."
 	icon_state = "beret_navy_hos"
 	spawn_blacklisted = TRUE
 
 /obj/item/clothing/head/beret/sec/navy/warden
 	name = "Sergeant beret"
-	desc = "Read beret with a Sergeant's rank emblem. For officers that are more inclined towards style than safety."
+	desc = "Red beret with a Sergeant's rank emblem. For sergeants that are more inclined towards style than safety."
 	icon_state = "beret_navy_warden"
 	spawn_blacklisted = TRUE
 
@@ -115,6 +118,8 @@
 	flags_inv = BLOCKHEADHAIR
 	bad_type = /obj/item/clothing/head/surgery
 	spawn_blacklisted = TRUE
+	style_coverage = COVERS_HAIR
+	style = STYLE_LOW
 
 /obj/item/clothing/head/surgery/purple
 	desc = "A cap surgeons wear during operations. Keeps their hair from tickling your internal organs. This one is deep purple."

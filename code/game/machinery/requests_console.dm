@@ -57,7 +57,7 @@ var/list/obj/machinery/requests_console/allConsoles = list()
 	..()
 	update_icon()
 
-/obj/machinery/requests_console/on_update_icon()
+/obj/machinery/requests_console/update_icon()
 	if(stat & NOPOWER)
 		if(icon_state != "req_comp_off")
 			icon_state = "req_comp_off"
@@ -101,9 +101,9 @@ var/list/obj/machinery/requests_console/allConsoles = list()
 /obj/machinery/requests_console/attack_hand(user as mob)
 	if(..(user))
 		return
-	ui_interact(user)
+	nano_ui_interact(user)
 
-/obj/machinery/requests_console/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/requests_console/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	var/data[0]
 
 	data["department"] = department

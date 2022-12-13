@@ -126,44 +126,25 @@
 		if(!E || !(E.functions & BODYPART_GRASP) || (E.status & ORGAN_SPLINTED))
 			continue
 
-		if(E.is_broken() || E.is_dislocated() || E.limb_efficiency <= 50)
-			switch(E.body_part)
-				if(ARM_LEFT)
-					if(!l_hand)
-						continue
-					drop_from_inventory(l_hand)
-				if(ARM_RIGHT)
-					if(!r_hand)
-						continue
-					drop_from_inventory(r_hand)
+		if(E.mob_can_unequip(src))
+			if(E.is_broken() || E.limb_efficiency <= 50)
+				
+				drop_from_inventory(E)
 
-			var/emote_scream = pick("screams in pain and ", "lets out a sharp cry and ", "cries out and ")
-			if(E.limb_efficiency <= 50)
-				var/emote_2 = pick("unable to grasp it", "unable to feel it", "too weak to hold it")
-				emote("me", 1, "drops what they were holding in their [E.name], [emote_2]!")
+				if(E.limb_efficiency <= 50)
+					emote("me", 1, "drops what they were holding in their [E.name], [pick("unable to grasp it", "unable to feel it", "too weak to hold it")]!")
+				else
+					emote("me", 1, "[(species.flags & NO_PAIN) ? "" : pick("screams in pain and ", "lets out a sharp cry and ", "cries out and ")]drops what they were holding in their [E.name]!")
 
-			else
-				emote("me", 1, "[(species.flags & NO_PAIN) ? "" : emote_scream ]drops what they were holding in their [E.name]!")
+			else if(E.is_malfunctioning())
+				drop_from_inventory(E)
+				emote("pain", 1, "drops what they were holding, their [E.name] malfunctioning!")
 
-		else if(E.is_malfunctioning())
-			switch(E.body_part)
-				if(ARM_LEFT)
-					if(!l_hand)
-						continue
-					drop_from_inventory(l_hand)
-				if(ARM_RIGHT)
-					if(!r_hand)
-						continue
-					drop_from_inventory(r_hand)
-
-			emote("pain", 1, "drops what they were holding, their [E.name] malfunctioning!")
-
-			var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
-			spark_system.set_up(5, 0, src)
-			spark_system.attach(src)
-			spark_system.start()
-			spawn(10)
-				qdel(spark_system)
+				var/datum/effect/effect/system/spark_spread/spark_system = new /datum/effect/effect/system/spark_spread()
+				spark_system.set_up(5, 0, src)
+				spark_system.attach(src)
+				spark_system.start()
+				QDEL_IN(spark_system, 1 SECOND)
 
 //Handles chem traces
 /mob/living/carbon/human/proc/handle_trace_chems()
@@ -175,7 +156,7 @@
 /mob/living/carbon/human/proc/sync_organ_dna()
 	var/list/all_bits = internal_organs|organs
 	for(var/obj/item/organ/O in all_bits)
-		O.set_dna(dna)
+		O.set_dna(src)
 
 /mob/living/carbon/human/is_asystole()
 	if(should_have_process(OP_HEART))
@@ -221,7 +202,7 @@
 			var/obj/item/organ/external/O = organ_data.create_organ(src)
 			var/datum/reagent/organic/blood/B = locate(/datum/reagent/organic/blood) in vessel.reagent_list
 			blood_splatter(src,B,1)
-			O.set_dna(dna)
+			O.set_dna(src)
 			update_body()
 			if (show_message)
 				to_chat(src, SPAN_DANGER("With a shower of fresh blood, a new [O.name] forms."))
@@ -232,7 +213,7 @@
 			var/organ_path = organ_data["path"]
 			var/obj/item/organ/internal/O = new organ_path(src)
 			organ_data["descriptor"] = O.name
-			O.set_dna(dna)
+			O.set_dna(src)
 			update_body()
 			if(is_carrion(src) && O.organ_tag == BP_BRAIN)
 				O.vital = 0

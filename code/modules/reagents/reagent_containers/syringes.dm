@@ -9,6 +9,8 @@
 	name = "syringe"
 	desc = "A syringe."
 	icon = 'icons/obj/syringe.dmi'
+	description_info = "Holds 15 units of reagents, can be used through voidsuits and non-thick armour"
+	description_antag = "People tend to place full trust into paramedics or doctors when they get scanned beforehand and told they're damaged, followed by a injection of what usually is healing chemicals."
 	item_state = "syringe"
 	icon_state = "0"
 	matter = list(MATERIAL_GLASS = 1, MATERIAL_STEEL = 1)
@@ -66,12 +68,12 @@
 		to_chat(user, SPAN_WARNING("This syringe is broken!"))
 		return
 
-	if(user.a_intent == I_HURT && ismob(target))
+/*	if(user.a_intent == I_HURT && ismob(target))
 		if((CLUMSY in user.mutations) && prob(50))
 			target = user
 		syringestab(target, user)
 		return
-
+*/
 	switch(mode)
 		if(SYRINGE_DRAW)
 			if(!reagents.get_free_space())
@@ -89,13 +91,9 @@
 						return
 					var/amount = reagents.get_free_space()
 					var/mob/living/carbon/T = target
-					if(!T.dna)
-						to_chat(user, SPAN_WARNING("You are unable to locate any blood. (To be specific, your target seems to be missing their DNA datum)."))
-						return
-					if(NOCLONE in T.mutations) //target done been et, no more blood in him
-						to_chat(user, SPAN_WARNING("You are unable to locate any blood."))
-						return
-
+//					if(NOCLONE in T.mutations) //target done been et, no more blood in him
+//						to_chat(user, SPAN_WARNING("You are unable to locate any blood."))
+//						return
 					var/datum/reagent/B
 					if(ishuman(T))
 						var/mob/living/carbon/human/H = T
@@ -219,7 +217,7 @@
 			to_chat(user, SPAN_NOTICE("You inject [trans] units of the solution. [src] now contains [src.reagents.total_volume] units."))
 
 
-/obj/item/reagent_containers/syringe/on_update_icon()
+/obj/item/reagent_containers/syringe/update_icon()
 	cut_overlays()
 
 	var/iconstring = initial(item_state)
@@ -343,7 +341,7 @@
 	unacidable = 1 //glass
 	reagent_flags = TRANSPARENT
 
-/obj/item/reagent_containers/syringe/large/on_update_icon()
+/obj/item/reagent_containers/syringe/large/update_icon()
 	cut_overlays()
 
 	var/iconstring = initial(item_state)
@@ -407,6 +405,36 @@
 	name = "syringe (hyperzine)"
 	desc = "Contains hyperzine - a long lasting muscle stimulant."
 	preloaded_reagents = list("hyperzine" = 15)
+
+/obj/item/reagent_containers/syringe/meralyne
+	name = "syringe (meralyne)"
+	desc = "Contains meralyne - a potent brute-healing medicine"
+	preloaded_reagents = list("meralyne" = 15)
+
+/obj/item/reagent_containers/syringe/tramadol
+	name = "syringe (tramadol)"
+	desc = "Contains tramadol - a general use painkiller"
+	preloaded_reagents = list("tramadol" = 15)
+
+/obj/item/reagent_containers/syringe/paracetamol
+	name = "syringe (paracetamol)"
+	desc = "Contains paracetamol - a mild painkiller"
+	preloaded_reagents = list("paracetamol" = 15)
+
+/obj/item/reagent_containers/syringe/adrenaline
+	name = "syringe (adrenaline)"
+	desc = "Contains adrenaline - a natural stimulant"
+	preloaded_reagents = list("adrenaline" = 15)
+
+/obj/item/reagent_containers/syringe/dermaline
+	name = "syringe (dermaline)"
+	desc = "Contains dermaline - a potent burn-salving medicine"
+	preloaded_reagents = list("dermaline" = 15)
+
+/obj/item/reagent_containers/syringe/polystem
+	name = "syringe (polystem)"
+	desc = "Contains polystem - a mild healing stimulant for surface wounds"
+	preloaded_reagents = list("polystem" = 15)
 
 /obj/item/reagent_containers/syringe/drugs
 	name = "syringe (drugs)"

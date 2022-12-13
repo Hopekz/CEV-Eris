@@ -53,7 +53,7 @@
 /obj/machinery/biogenerator/on_reagent_change()			//When the reagents change, change the icon as well.
 	update_icon()
 
-/obj/machinery/biogenerator/on_update_icon()
+/obj/machinery/biogenerator/update_icon()
 	if(!beaker)
 		icon_state = "biogen-empty"
 	else if(!processing)
@@ -111,7 +111,7 @@
 	update_icon()
 	return
 
-/obj/machinery/biogenerator/ui_interact(var/mob/user, var/ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS, var/datum/topic_state/state =GLOB.outside_state)
+/obj/machinery/biogenerator/nano_ui_interact(var/mob/user, var/ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS, var/datum/nano_topic_state/state =GLOB.outside_state)
 	user.set_machine(src)
 	var/list/data = list()
 	data["points"] = points
@@ -157,7 +157,7 @@
 		return TRUE
 
 	user.set_machine(src)
-	ui_interact(user)
+	nano_ui_interact(user)
 
 /obj/machinery/biogenerator/proc/activate()
 	if (usr.stat)

@@ -31,7 +31,8 @@
 //flags
 #define UPGRADE_ITEMFLAGPLUS "item_flag_add"
 
-
+// Weapon minimum fire_delay
+#define GUN_MINIMUM_FIRETIME 1.1 // 110 MS , ~9 shots per second.
 
 //Weapon upgrade defines
 
@@ -49,7 +50,6 @@
 #define GUN_UPGRADE_OVERCHARGE_MAX "overcharge_max_mult"
 #define GUN_UPGRADE_OVERCHARGE_RATE "overcharge_rate_mult"
 #define GUN_UPGRADE_ONEHANDPENALTY "onehandpenalty_mult"
-#define GUN_UPGRADE_AGONY_MULT "agony_mult"
 
 //Int additive
 #define GUN_UPGRADE_DAMAGEMOD_PLUS "damage_plus"
@@ -82,6 +82,8 @@
 #define GUN_UPGRADE_BAYONET "bayonet"
 #define GUN_UPGRADE_GILDED "gilded"
 #define GUN_UPGRADE_DNALOCK "biocoded"
+#define GUN_UPGRADE_FOREGRIP "foregrip"
+#define GUN_UPGRADE_BIPOD "bipod"
 
 //Location Tag defines
 
@@ -102,10 +104,10 @@
 #define GUN_REVOLVER "revolver"
 #define GUN_INTERNAL_MAG "internal mag"
 #define GUN_GILDABLE "gildable"
+#define GUN_FA_MODDABLE "full auto moddable"
 
 #define GUN_CALIBRE_35 "caliber .35"
 
-#define GUN_SOL "Is a FS CAR .25 CS \"Sol\""
 #define GUN_AMR "Is a SA AMR \"Hristov\""
 
 // A rare, random item

@@ -145,7 +145,7 @@
 		if(!cover_closed)
 			close_cover()
 
-		ui_interact(user)
+		nano_ui_interact(user)
 
 /obj/machinery/excelsior_autodoc/affect_grab(mob/user, mob/target)
 	if (occupant)
@@ -193,8 +193,8 @@
 		autodoc_processor.stop()
 		update_icon()
 
-/obj/machinery/excelsior_autodoc/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = NANOUI_FORCE_OPEN, datum/topic_state/state = GLOB.default_state)
-	autodoc_processor.ui_interact(user, ui_key, ui, force_open, state)
+/obj/machinery/excelsior_autodoc/nano_ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = NANOUI_FORCE_OPEN, datum/nano_topic_state/state = GLOB.default_state)
+	autodoc_processor.nano_ui_interact(user, ui_key, ui, force_open, state)
 
 /obj/machinery/excelsior_autodoc/Topic(href, href_list)
 	return autodoc_processor.Topic(href, href_list)
@@ -215,22 +215,22 @@
 	playsound(src.loc, 'sound/machines/medbayscanner1.ogg', 50, 1)
 	update_icon()
 
-/obj/machinery/excelsior_autodoc/on_update_icon()
+/obj/machinery/excelsior_autodoc/update_icon()
 
 	cut_overlays()
 
 	if(panel_open)
 		var/image/panel = image(icon, "panel")
 		panel.layer = 4.5
-		add_overlays(panel)
+		overlays += panel
 
 	if(occupant)
 		var/image/comrade = image(occupant.icon, occupant.icon_state)
 		comrade.overlays = occupant.overlays
 		comrade.pixel_x = 6
 		comrade.layer = 4
-		add_overlays(comrade)
-		add_overlays(cover_state)
+		overlays += comrade
+		overlays += cover_state
 		if(cover_moving)
 			sleep (15)
 			if(cover_closed)
@@ -252,4 +252,4 @@
 	if(stat & (NOPOWER|BROKEN))
 		screen_state = image(icon, "screen_off")
 
-	add_overlays(screen_state)
+	overlays += screen_state

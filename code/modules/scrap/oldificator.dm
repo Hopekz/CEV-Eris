@@ -11,6 +11,12 @@
 		var/obj/item/I = parent
 		armor = I.armor.getList()
 
+/datum/component/oldficator/Destroy()
+	old_obj = null
+	LAZYCLEARLIST(armor)
+	LAZYCLEARLIST(all_vars)
+	return ..()
+
 /datum/component/oldficator/proc/make_young()
 	for(var/V in all_vars)
 		if(istype(parent.vars[V], /datum) || ismob(parent.vars[V]) || isHUDobj(parent.vars[V]) || isobj(parent.vars[V]))
@@ -31,6 +37,44 @@
 		oldified.make_young()
 		return TRUE
 	return FALSE
+
+/obj/item/gun/make_young()
+	var/list/stored_upgrades = item_upgrades.Copy()
+	for (var/obj/item/toremove in stored_upgrades)
+		var/datum/component/item_upgrade/IU = toremove.GetComponent(/datum/component/item_upgrade)
+		if (IU)
+			SEND_SIGNAL(toremove, COMSIG_REMOVE, src)
+			visible_message(SPAN_NOTICE("\The [toremove] detaches from \the [src]."))
+			. = TRUE
+
+	refresh_upgrades()
+	if (.) // this is so it always returns true if it did something
+		..()
+	else
+		. = ..()
+
+/obj/item/tool/make_young()
+	var/list/stored_upgrades = item_upgrades.Copy()
+	for (var/obj/item/toremove in stored_upgrades)
+		var/datum/component/item_upgrade/IU = toremove.GetComponent(/datum/component/item_upgrade)
+		if (IU)
+			SEND_SIGNAL(toremove, COMSIG_REMOVE, src)
+			visible_message(SPAN_NOTICE("\The [toremove] detaches from \the [src]."))
+			. = TRUE
+
+	refresh_upgrades()
+	if (.) // this is so it always returns true if it did something
+		..()
+	else
+		. = ..()
+
+/obj/item/computer_hardware/hard_drive/make_young()
+	.=..()
+	stored_files = list()
+
+/obj/item/computer_hardware/hard_drive/portable/design/make_young()
+	.=..()
+	license = min(license, 0)
 
 /obj/proc/make_old(low_quality_oldification)	//low_quality_oldification changes names and colors to fit with "bad prints" instead of "very old items" asthetic
 	GET_COMPONENT(oldified, /datum/component/oldficator)
@@ -143,6 +187,8 @@
 /obj/item/reagent_containers/food/snacks/liquidfood/make_old(low_quality_oldification)
 	return
 
+// This was causing roundstart hard dels
+/*
 /obj/item/ammo_magazine/make_old(low_quality_oldification)
 	var/del_count = rand(0, stored_ammo.len)
 	if(low_quality_oldification)
@@ -153,6 +199,7 @@
 		stored_ammo -= removed_item
 		QDEL_NULL(removed_item)
 	..()
+*/
 
 /obj/item/cell/make_old(low_quality_oldification)
 	.=..()
@@ -258,35 +305,16 @@
 
 /obj/item/electronics/ai_module/broken/transmitInstructions(mob/living/silicon/ai/target, mob/sender)
 	..()
-	IonStorm(0)
+	IonStorm()
 	explosion(sender.loc, 1, 1, 1, 3)
 	sender.drop_from_inventory(src)
 	QDEL_NULL(src)
 
-/obj/item/dnainjector/make_old(low_quality_oldification)
-	.=..()
-	if(.)
-		if(prob(75))
-			name = "DNA-Injector (unknown)"
-			desc = pick("1mm0r74l17y 53rum", "1ncr3d1bl3 73l3p47y hNlk", "5up3rhum4n m16h7")
-			value = 0xFFF
-		if(prob(75))
-			block = pick(MONKEYBLOCK, HALLUCINATIONBLOCK, DEAFBLOCK, BLINDBLOCK, NERVOUSBLOCK, TWITCHBLOCK, CLUMSYBLOCK, COUGHBLOCK, HEADACHEBLOCK, GLASSESBLOCK)
-
-
 /obj/item/clothing/glasses/hud/make_old(low_quality_oldification)
 	GET_COMPONENT(oldified, /datum/component/oldficator)
 	if(!oldified && prob(75) && !istype(src, /obj/item/clothing/glasses/hud/broken))
-		var/obj/item/clothing/glasses/hud/broken/brokenhud = new /obj/item/clothing/glasses/hud/broken(loc)
-		brokenhud.name = src.name
-		brokenhud.desc = src.desc
-		brokenhud.icon = src.icon
-		brokenhud.icon_state = src.icon_state
-		brokenhud.item_state = src.item_state
-		brokenhud.make_old(low_quality_oldification)
-		QDEL_NULL(src)
-	else
-		.=..()
+		malfunctioning = TRUE
+	.=..()
 
 /obj/item/clothing/glasses/make_old(low_quality_oldification)
 	.=..()

@@ -8,7 +8,7 @@
 	anchored = TRUE
 	flags = ON_BORDER
 	var/maxhealth = 20
-	var/resistance = RESISTANCE_NONE	//Incoming damage is reduced by this flat amount before being subtracted from health. Defines found in code\__defines\weapons.dm
+	var/resistance = RESISTANCE_FLIMSY	//Incoming damage is reduced by this flat amount before being subtracted from health. Defines found in code\__defines\weapons.dm
 	var/maximal_heat = T0C + 100 		// Maximal heat before this window begins taking damage from fire
 	var/damage_per_fire_tick = 2 		// Amount of damage per fire tick. Regular windows are not fireproof so they might as well break quickly.
 	var/health
@@ -20,6 +20,8 @@
 	var/glasstype = null // Set this in subtypes. Null is assumed strange or otherwise impossible to dismantle, such as for shuttle glass.
 	var/silicate = 0 // number of units of silicate
 	var/no_color = FALSE //If true, don't apply a color to the base
+
+	atmos_canpass = CANPASS_PROC
 
 /obj/structure/window/can_prevent_fall()
 	return !is_fulltile()
@@ -99,12 +101,12 @@
 	if (is_full_window())
 		return
 	if (overlays)
-		cut_overlays()
+		overlays.Cut()
 
 	var/image/img = image(src.icon, src.icon_state)
 	img.color = "#ffffff"
 	img.alpha = silicate * 255 / 100
-	add_overlays(img)
+	overlays += img
 
 //Setting the explode var makes the shattering louder and more violent, possibly injuring surrounding mobs
 /obj/structure/window/proc/shatter(var/display_message = 1, var/explode = FALSE)
@@ -146,25 +148,24 @@
 /obj/structure/window/bullet_act(var/obj/item/projectile/Proj)
 
 	var/proj_damage = Proj.get_structure_damage()
-	if(!proj_damage) return
-
+	if(proj_damage)
+		hit(proj_damage)
 	..()
-	hit(proj_damage)
-	return
+
+	return TRUE
 
 
 /obj/structure/window/ex_act(severity)
 	switch(severity)
 		if(1)
 			qdel(src)
-			return
 		if(2)
 			shatter(0,TRUE)
-			return
 		if(3)
+			shatter(0,TRUE)
+		if(4)
 			if(prob(50))
 				shatter(0,TRUE)
-				return
 
 //TODO: Make full windows a separate type of window.
 //Once a full window, it will always be a full window, so there's no point
@@ -193,6 +194,9 @@
 
 /obj/structure/window/hitby(AM as mob|obj)
 	..()
+	if(isliving(AM))
+		hit_by_living(AM)
+		return
 	visible_message(SPAN_DANGER("[src] was hit by [AM]."))
 	var/tforce = 0
 	if(ismob(AM))
@@ -201,10 +205,9 @@
 		var/obj/item/I = AM
 		tforce = I.throwforce
 	if(reinf) tforce *= 0.25
-	if(health - tforce <= 7 && !reinf)
+	if(hit(tforce) && health <= 7 && !reinf)
 		set_anchored(FALSE)
 		step(src, get_dir(AM, src))
-	hit(tforce)
 	mount_check()
 
 /obj/structure/window/attack_tk(mob/user as mob)
@@ -213,13 +216,13 @@
 
 /obj/structure/window/attack_hand(mob/user as mob)
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
-	if(HULK in user.mutations)
+/*	if(HULK in user.mutations)
 		user.say(pick(";RAAAAAAAARGH!", ";HNNNNNNNNNGGGGGGH!", ";GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", ";AAAAAAARRRGH!"))
 		user.visible_message(SPAN_DANGER("[user] smashes through [src]!"))
 		user.do_attack_animation(src)
 		shatter(TRUE,TRUE)
-
-	else if (usr.a_intent == I_HURT)
+*/
+	if (usr.a_intent == I_HURT)
 
 		if (ishuman(usr))
 			var/mob/living/carbon/human/H = usr
@@ -278,6 +281,22 @@
 	sleep(5) //Allow a littleanimating time
 	return TRUE
 
+/obj/structure/window/proc/hit_by_living(var/mob/living/M)
+	var/body_part = pick(BP_HEAD, BP_CHEST, BP_GROIN)
+	var/direction = get_dir(M, src)
+	visible_message(SPAN_DANGER("[M] slams against \the [src]!"))
+	if(prob(30))
+		M.Weaken(1)
+	M.damage_through_armor(rand(7,10), BRUTE, body_part, ARMOR_MELEE)
+
+	var/tforce = (M.stats.getPerk(PERK_ASS_OF_CONCRETE) ? 60 : 15)
+	if(reinf) tforce *= 0.25
+	if(hit(tforce) && health <= 7 && !reinf)
+		set_anchored(FALSE)
+		step(src, direction)
+		if(M.stats.getPerk(PERK_ASS_OF_CONCRETE)) //if your ass is heavy and the window is not reinforced, you are moved on the tile where it was
+			M.forceMove(get_step(M.loc, direction), direction)
+	mount_check()
 
 /obj/structure/window/attackby(obj/item/I, mob/user)
 
@@ -368,6 +387,7 @@
 	damage = take_damage(damage, TRUE, ignore_resistance)
 	if(sound_effect && loc) // If the window was shattered and, thus, nullspaced, don't try to play hit sound
 		playsound(loc, 'sound/effects/glasshit.ogg', damage*4.5, 1, damage*0.6, damage*0.6) //The harder the hit, the louder and farther travelling the sound
+	return damage
 
 
 /obj/structure/window/proc/rotate()
@@ -473,10 +493,10 @@
 		verbs += /obj/structure/window/proc/revrotate
 
 //merges adjacent full-tile windows into one (blatant ripoff from game/smoothwall.dm)
-/obj/structure/window/on_update_icon()
+/obj/structure/window/update_icon()
 	//A little cludge here, since I don't know how it will work with slim windows. Most likely VERY wrong.
 	//this way it will only update full-tile ones
-	cut_overlays()
+	overlays.Cut()
 	if(!is_fulltile())
 		icon_state = "[basestate]"
 		return
@@ -504,7 +524,7 @@
 	icon_state = ""
 	for(var/i = 1 to 4)
 		var/image/I = image(icon, "[basestate][connections[i]]", dir = 1<<(i-1))
-		add_overlays(I)
+		overlays += I
 
 	return
 
@@ -523,7 +543,7 @@
 	maximal_heat = T0C + 200	// Was 100. Spaceship windows surely surpass coffee pots.
 	damage_per_fire_tick = 3	// Was 2. Made weaker than rglass per tick.
 	maxhealth = 15
-	resistance = RESISTANCE_NONE
+	resistance = RESISTANCE_FLIMSY
 
 /obj/structure/window/basic/full
 	dir = SOUTH|EAST
@@ -531,7 +551,7 @@
 	icon_state = "fwindow"
 	alpha = 120
 	maxhealth = 40
-	resistance = RESISTANCE_NONE
+	resistance = RESISTANCE_FLIMSY
 	flags = null
 
 /obj/structure/window/plasmabasic
@@ -702,7 +722,7 @@
 	if(active && !powered(power_channel))
 		toggle_tint()
 
-/obj/machinery/button/windowtint/on_update_icon()
+/obj/machinery/button/windowtint/update_icon()
 	icon_state = "light[active]"
 
 

@@ -7,6 +7,7 @@
 /obj/machinery/power/shield_generator
 	name = "advanced shield generator"
 	desc = "A heavy-duty shield generator and capacitor, capable of generating energy shields at large distances."
+	description_info = "Can be moved by retracting the power conduits with the appropiate right-click verb"
 	icon = 'icons/obj/machines/shielding.dmi'
 	icon_state = "generator0"
 	density = TRUE
@@ -83,25 +84,25 @@
 	var/tendrils_deployed = FALSE				// Whether the dummy capacitors are currently extended
 
 
-/obj/machinery/power/shield_generator/on_update_icon()
-	cut_overlays()
+/obj/machinery/power/shield_generator/update_icon()
+	overlays.Cut()
 	if(running)
-		SetIconState("generator1")
+		icon_state = "generator1"
 		set_light(2, 2, "#8AD55D")
 	else
-		SetIconState("generator0")
+		icon_state = "generator0"
 		set_light(0)
 	if (tendrils_deployed)
 		for (var/D in tendril_dirs)
 			var/I = image(icon,"capacitor_connected", dir = D)
-			add_overlays(I)
+			overlays += I
 
 	for (var/obj/machinery/shield_conduit/S in tendrils)
 		if (running)
-			S.SetIconState("conduit_1")
+			S.icon_state = "conduit_1"
 			S.bright_light()
 		else
-			S.SetIconState("conduit_0")
+			S.icon_state = "conduit_0"
 			S.no_light()
 
 
@@ -331,7 +332,7 @@
 			S.fail(1)
 
 
-/obj/machinery/power/shield_generator/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/power/shield_generator/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	var/data[0]
 
 	data["running"] = running
@@ -384,7 +385,7 @@
 
 
 /obj/machinery/power/shield_generator/attack_hand(var/mob/user)
-	ui_interact(user)
+	nano_ui_interact(user)
 	if(panel_open)
 		wires.Interact(user)
 
@@ -465,7 +466,7 @@
 		log_event(EVENT_RECONFIGURED, src)
 		. = 1
 
-	ui_interact(usr)
+	nano_ui_interact(usr)
 
 /obj/machinery/power/shield_generator/proc/field_integrity()
 	if(max_energy)

@@ -49,7 +49,7 @@
 	if(!anchored)
 		return
 
-/obj/machinery/power/port_gen/on_update_icon()
+/obj/machinery/power/port_gen/update_icon()
 	if(!active)
 		icon_state = initial(icon_state)
 
@@ -346,9 +346,9 @@
 	..()
 	if (!anchored)
 		return
-	ui_interact(user)
+	nano_ui_interact(user)
 
-/obj/machinery/power/port_gen/pacman/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
+/obj/machinery/power/port_gen/pacman/nano_ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	if(IsBroken())
 		return
 
@@ -413,7 +413,7 @@
 	onclose(user, "port_gen")
 */
 
-/obj/machinery/power/port_gen/pacman/on_update_icon()
+/obj/machinery/power/port_gen/pacman/update_icon()
 	if(active)
 		icon_state = "portgen1"
 	else

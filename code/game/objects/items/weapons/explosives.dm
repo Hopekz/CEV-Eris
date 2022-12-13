@@ -37,7 +37,7 @@
 /obj/item/plastique/attack_self(mob/user as mob)
 	var/newtime = input(usr, "Please set the timer.", "Timer", 10) as num
 	if(user.get_active_hand() == src)
-		newtime = CLAMP(newtime, 10, 60000)
+		newtime = CLAMP(newtime, 2, 60000)
 		timer = newtime
 		to_chat(user, "Timer set for [timer] seconds.")
 
@@ -49,7 +49,7 @@
 	to_chat(user, "Planting the explosive charge...")
 	user.do_attack_animation(target)
 
-	if(do_after(user, 50, target) && in_range(user, target))
+	if(do_after(user, 2 SECONDS, target) && in_range(user, target))
 		user.drop_item()
 		src.target = target
 		loc = null
@@ -64,7 +64,7 @@
 			message_admins("[key_name(user, user.client)](<A HREF='?_src_=holder;adminmoreinfo=\ref[user]'>?</A>) planted [src.name] on [target.name] at ([target.x],[target.y],[target.z] - <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[target.x];Y=[target.y];Z=[target.z]'>JMP</a>) with [timer] second fuse",0,1)
 			log_game("[key_name(user)] planted [src.name] on [target.name] at ([target.x],[target.y],[target.z]) with [timer] second fuse")
 
-		target.add_overlays(image_overlay)
+		target.overlays += image_overlay
 		to_chat(user, "Bomb has been planted. Timer is counting down from [timer].")
 		spawn(timer*10)
 			explode(get_turf(target))
@@ -80,18 +80,18 @@
 	if(target)
 		if (istype(target, /turf/simulated/wall))
 			var/turf/simulated/wall/W = target
-			W.dismantle_wall(1)
+			W.dismantle_wall(no_product = TRUE)
 		else if(isliving(target))
 			target.ex_act(2) // c4 can't gib mobs anymore.
 		else
 			target.ex_act(1)
 
 	//Girders are a pain, just delete em
-	for (var/obj/structure/girder/G in loc)
-		qdel(G)
+	//for (var/obj/structure/girder/G in loc)
+	//	qdel(G)
 
 	if(target)
-		target.remove_overlays(image_overlay)
+		target.overlays -= image_overlay
 	qdel(src)
 
 /obj/item/plastique/attack(mob/M, mob/user, def_zone)

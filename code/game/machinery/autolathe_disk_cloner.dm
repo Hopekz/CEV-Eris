@@ -10,7 +10,6 @@
 	idle_power_usage = 5
 	active_power_usage = 500
 
-	var/hacked = FALSE
 	var/copying_delay = 0
 	var/hack_fail_chance = 0
 
@@ -66,7 +65,7 @@
 			to_chat(user, SPAN_NOTICE("[src]'s slots is full."))
 
 	user.set_machine(src)
-	ui_interact(user)
+	nano_ui_interact(user)
 	update_icon()
 
 
@@ -94,29 +93,29 @@
 		return TRUE
 
 	user.set_machine(src)
-	ui_interact(user)
+	nano_ui_interact(user)
 	update_icon()
 
 
-/obj/machinery/autolathe_disk_cloner/ui_data()
+/obj/machinery/autolathe_disk_cloner/nano_ui_data()
 	var/list/data = list(
 		"copying" = copying,
 		"hacked" = hacked
 	)
 
 	if(original)
-		data["disk1"] = original.ui_data()
+		data["disk1"] = original.nano_ui_data()
 		data["copyingtotal"] = original.stored_files.len
 
 	if(copy)
-		data["disk2"] = copy.ui_data()
+		data["disk2"] = copy.nano_ui_data()
 		data["copyingnow"] = copy.stored_files.len
 
 	return data
 
 
-/obj/machinery/autolathe_disk_cloner/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = NANOUI_FOCUS)
-	var/list/data = ui_data()
+/obj/machinery/autolathe_disk_cloner/nano_ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = NANOUI_FOCUS)
+	var/list/data = nano_ui_data()
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if (!ui)
@@ -231,28 +230,28 @@
 	update_icon()
 
 
-/obj/machinery/autolathe_disk_cloner/on_update_icon()
-	cut_overlays()
+/obj/machinery/autolathe_disk_cloner/update_icon()
+	overlays.Cut()
 
 	if(panel_open)
-		add_overlays(image(icon, icon_state = "disk_cloner_panel"))
+		overlays.Add(image(icon, icon_state = "disk_cloner_panel"))
 
 	if(!stat)
-		add_overlays(image(icon, icon_state = "disk_cloner_screen"))
-		add_overlays(image(icon, icon_state = "disk_cloner_keyboard"))
+		overlays.Add(image(icon, icon_state = "disk_cloner_screen"))
+		overlays.Add(image(icon, icon_state = "disk_cloner_keyboard"))
 
 		if(original)
-			add_overlays(image(icon, icon_state = "disk_cloner_screen_disk1"))
+			overlays.Add(image(icon, icon_state = "disk_cloner_screen_disk1"))
 
 			if(original.stored_files.len)
-				add_overlays(image(icon, icon_state = "disk_cloner_screen_list1"))
+				overlays.Add(image(icon, icon_state = "disk_cloner_screen_list1"))
 
 		if(copy)
-			add_overlays(image(icon, icon_state = "disk_cloner_screen_disk2"))
+			overlays.Add(image(icon, icon_state = "disk_cloner_screen_disk2"))
 
 			if(copy.stored_files.len)
-				add_overlays(image(icon, icon_state = "disk_cloner_screen_list2"))
+				overlays.Add(image(icon, icon_state = "disk_cloner_screen_list2"))
 
 		if(copying)
-			add_overlays(image(icon, icon_state = "disk_cloner_cloning"))
+			overlays.Add(image(icon, icon_state = "disk_cloner_cloning"))
 

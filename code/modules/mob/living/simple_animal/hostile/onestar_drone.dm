@@ -38,19 +38,19 @@
 	update_icon()
 
 
-/mob/living/simple_animal/hostile/onestar_custodian/on_update_icon()
+/mob/living/simple_animal/hostile/onestar_custodian/update_icon()
 	. = ..()
-	cut_overlays()
+	overlays.Cut()
 	var/image/shell_I = image(icon, src, "shell_[shell_type]")
 	var/image/marks_I = image(icon, src, "marks_[marks_type]")
 	var/image/screen_I = image(icon, src, "screen_[screen_type]")
 	var/image/tool_I = image(icon, src, "tool_[tool]_[tooltype]")
 	var/image/radio_I = image(icon, src, "radio_os")
-	add_overlays(shell_I)
-	add_overlays(marks_I)
-	add_overlays(screen_I)
-	add_overlays(tool_I)
-	add_overlays(radio_I)
+	overlays += shell_I
+	overlays += marks_I
+	overlays += screen_I
+	overlays += tool_I
+	overlays += radio_I
 
 
 
@@ -61,6 +61,15 @@
 	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
 	s.set_up(3, 1, src)
 	s.start()
+	if(prob(20))
+		var/os_components_reward = pick(list(
+			/obj/item/stock_parts/capacitor/one_star,
+			/obj/item/stock_parts/scanning_module/one_star,
+			/obj/item/stock_parts/manipulator/one_star,
+			/obj/item/stock_parts/micro_laser/one_star,
+			/obj/item/stock_parts/matter_bin/one_star
+		))
+		new os_components_reward(get_turf(src))
 	qdel(src)
 	return
 

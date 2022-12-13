@@ -13,11 +13,13 @@
 	mag_well = MAG_WELL_PISTOL|MAG_WELL_H_PISTOL
 	magazine_type = /obj/item/ammo_magazine/pistol
 	damage_multiplier = 1.5
-	recoil_buildup = 4
+	penetration_multiplier = 0
+	init_recoil = HANDGUN_RECOIL(1.2)
 	gun_tags = list(GUN_GILDABLE)
 	spawn_tags = SPAWN_TAG_FS_PROJECTILE
-
-/obj/item/gun/projectile/colt/on_update_icon()
+	gun_parts = list(/obj/item/part/gun/frame/colt = 1, /obj/item/part/gun/grip/wood = 1, /obj/item/part/gun/mechanism/pistol = 1, /obj/item/part/gun/barrel/pistol = 1)
+	serial_type = "FS"
+/obj/item/gun/projectile/colt/update_icon()
 	..()
 
 	var/iconstring = initial(icon_state)
@@ -36,3 +38,12 @@
 /obj/item/gun/projectile/colt/Initialize()
 	. = ..()
 	update_icon()
+
+/obj/item/part/gun/frame/colt
+	name = "Colt 1911 frame"
+	desc = "A Colt pistol frame. Winner of dozens of world wars, and loser of many more guerilla wars."
+	icon_state = "frame_1911"
+	resultvars = list(/obj/item/gun/projectile/colt)
+	gripvars = list(/obj/item/part/gun/grip/wood)
+	mechanismvar = /obj/item/part/gun/mechanism/pistol
+	barrelvars = list(/obj/item/part/gun/barrel/pistol)

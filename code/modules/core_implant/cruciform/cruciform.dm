@@ -6,6 +6,7 @@ var/list/disciples = list()
 	name = "cruciform"
 	icon_state = "cruciform_green"
 	desc = "Soul holder for every disciple. With the proper rituals, this can be implanted to induct a new believer into NeoTheology."
+	description_info = "The cruciform ensures genetic purity, it will purge any cybernetic attachments, or mutation that are not part of the standard human genome"
 	allowed_organs = list(BP_CHEST)
 	implant_type = /obj/item/implant/core_implant/cruciform
 	layer = ABOVE_MOB_LAYER
@@ -84,8 +85,13 @@ var/list/disciples = list()
 	var/observation_points = 200
 	if(!wearer || active)
 		return
-	if(wearer.get_species() != SPECIES_HUMAN || is_carrion(wearer))
-		if(wearer.get_species() == "Monkey")
+	if(get_active_mutation(wearer, MUTATION_GODBLOOD))
+		spawn(2 MINUTES)
+		for(var/mob/living/carbon/human/H in (disciples - wearer))
+			to_chat(H, SPAN_WARNING("A distand scream pierced your mind. You feel that a vile mutant sneaked among the faithful."))
+			playsound(wearer.loc, 'sound/hallucinations/veryfar_noise.ogg', 55, 1)
+	else if(wearer.get_species() != SPECIES_HUMAN || is_carrion(wearer))
+		if(wearer.get_species() == SPECIES_MONKEY)
 			observation_points /= 20
 		playsound(wearer.loc, 'sound/hallucinations/wail.ogg', 55, 1)
 		wearer.gib()
@@ -129,30 +135,34 @@ var/list/disciples = list()
 
 /obj/item/implant/core_implant/cruciform/Process()
 	..()
-	if(active && round(world.time) % 5 == 0)
+	if(active && round(world.time) % 5 == 0 && !get_active_mutation(wearer, MUTATION_GODBLOOD))
 		remove_cyber()
-	if(wearer)
-		if(wearer.stat == DEAD)
-			deactivate()
+		if(wearer.mutation_index)
+			var/datum/mutation/M = pick(wearer.active_mutations)
+			M.cleanse(wearer)
+			wearer.adjustToxLoss(rand(5, 25))
+
+	if(wearer.stat == DEAD)
+		deactivate()
 
 /obj/item/implant/core_implant/cruciform/proc/transfer_soul()
 	if(!wearer || !activated)
 		return FALSE
 	var/datum/core_module/cruciform/cloning/data = get_module(CRUCIFORM_CLONING)
-	if(wearer.dna.unique_enzymes == data.dna.unique_enzymes)
+	if(wearer.dna_trace == data.dna_trace)
 		for(var/mob/M in GLOB.player_list)
 			if(M.ckey == data.ckey)
 				if(M.stat != DEAD)
 					return FALSE
 		var/datum/mind/MN = data.mind
-		if(!istype(MN, /datum/mind))
+		if(!istype(MN))
 			return
 		MN.transfer_to(wearer)
 		wearer.ckey = data.ckey
 		for(var/datum/language/L in data.languages)
 			wearer.add_language(L.name)
 		update_data()
-		if (activate())
+		if(activate())
 			return TRUE
 
 /obj/item/implant/core_implant/cruciform/proc/remove_cyber()
@@ -182,6 +192,19 @@ var/list/disciples = list()
 			R.part.take_damage(rand(20,40))
 			R.uninstall()
 			R.malfunction = MALFUNCTION_PERMANENT
+		if(istype(O, /obj/item/organ/internal))
+			var/obj/item/organ/internal/I = O
+			if(!I.item_upgrades.len)
+				continue
+			if(I.owner != wearer)
+				continue
+			for(var/mod in I.item_upgrades)
+				var/atom/movable/AM = mod
+				SEND_SIGNAL(AM, COMSIG_REMOVE, I)
+				I.take_damage(rand(5,10))
+				if(I.parent)
+					I.parent.take_damage(rand(2,5))
+				wearer.visible_message(SPAN_NOTICE("<b>\The [AM]</b> rips through \the [wearer]'s flesh."), SPAN_NOTICE("<b>\The [AM]</b> rips through your flesh. Your [I.name] hurts."))
 	if(ishuman(wearer))
 		var/mob/living/carbon/human/H = wearer
 		H.update_implants()
