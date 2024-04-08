@@ -9,7 +9,9 @@
 #define COMSIG_GLOB_FABRIC_NEW "!fabric_new"					//(image/fabric)
 
 //////////////////////////////////////////////////////////////////
+// world signals
 
+#define COMSIG_WORLD_MAXZ_INCREMENTING "world_maxz_increase"
 // /datum signals
 /// when a component is added to a datum: (/datum/component)
 #define COMSIG_COMPONENT_ADDED "component_added"
@@ -50,6 +52,8 @@
 #define COMSIG_EXAMINE "examine"								//from atom/examine(): (mob/user, distance)
 #define COMSIG_ATOM_UPDATE_OVERLAYS "atom_update_overlays"  //update_overlays()
 #define COMSIG_ATOM_UNFASTEN "atom_unfasten" // set_anchored()
+// Whenever we are put into a container of any sort , storage , closets , pockets. (atom/true_parent)
+#define COMSIG_ATOM_CONTAINERED "atom_containered"
 
 // /area signals
 #define COMSIG_AREA_SANCTIFY "sanctify_area"
@@ -58,21 +62,26 @@
 #define COMSIG_TURF_LEVELUPDATE "turf_levelupdate" //levelupdate()
 
 // /atom/movable signals
-#define COMSIG_MOVABLE_MOVED "movable_moved"					//from base of atom/movable/Moved(): (/atom, origin_loc, new_loc)
-#define COMSIG_MOVABLE_Z_CHANGED "movable_z_moved"				//from base of atom/movable/onTransitZ(): (oldz, newz)
+// These 2 can be sent at the same time togheter, if you only care about the Z-level , only use the Z-changed , else only use the moved.
+#define COMSIG_MOVABLE_MOVED "movable_moved"					//from atom/movable/Move and forceMove: (/atom, origin_loc, new_loc)
+#define COMSIG_MOVABLE_Z_CHANGED "movable_z_moved"				//from atom/movable/Move and forceMove): (oldz, newz)
 #define COMSIG_MOVABLE_PREMOVE "moveable_boutta_move"
+
+#define COMSIG_ATTEMPT_PULLING "attempt_pulling"
+	#define COMSIG_PULL_CANCEL (1<<0)
 
 // /mob signals
 #define COMSIG_MOB_LIFE  "mob_life"							 //from mob/Life()
 #define COMSIG_MOB_LOGIN "mob_login"							//from mob/Login()
 #define COMSIG_MOB_DEATH "mob_death"							//from mob/death()
+#define COMSIG_MOB_INITIALIZED "mob_initialized"
 #define COMSIG_SHIFTCLICK "shiftclick" // used for ai_like_control component
 #define COMSIG_CTRLCLICK "ctrlclick" // used for ai_like_control component
 #define COMSIG_ALTCLICK "altclick" // used for ai_like_control component
 
 // /mob/living signals
 #define COMSIG_LIVING_STUN_EFFECT "stun_effect_act"			 //mob/living/proc/stun_effect_act()
-#define COMSIG_CARBON_HAPPY   "carbon_happy"				   //drugs o ethanol in blood
+#define COMSIG_CARBON_HAPPY   "carbon_happy"				   //drugs or ethanol in blood
 
 // /mob/living/carbon signals
 #define COMSIG_CARBON_ELECTROCTE "carbon_electrocute act"	   //mob/living/carbon/electrocute_act()
@@ -107,6 +116,8 @@
 #define COMSIG_AREA_APC_POWER_CHANGE "area_apc_power_change"
 #define COMSING_DESTRUCTIVE_ANALIZER "destructive_analizer"
 #define COMSIG_TURRENT "create_turrent"
+#define COMSIG_DOOR_OPENED "door_opened"
+#define COMSIG_DOOR_CLOSED "door_closed"
 
 // /obj/item signals
 #define COMSIG_IATTACK "item_attack"									//from /mob/ClickOn(): (/atom, /src, /params) If any reply to this returns TRUE, overrides attackby and afterattack

@@ -112,7 +112,7 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 		return
 	..() //redirect to hsrc.Topic()
 
-///dumb workaround because byond doesnt seem to recognize the .proc/Topic() typepath for /datum/proc/Topic() from the client Topic,
+///dumb workaround because byond doesnt seem to recognize the PROC_REF(Topic) typepath for /datum/proc/Topic() from the client Topic,
 ///so we cant queue it without this
 /client/proc/_Topic(datum/hsrc, href, list/href_list)
 	return hsrc.Topic(href, href_list)
@@ -641,6 +641,9 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 
 /client/proc/destroy_UI()
 	if(UI)
+		for(var/i in screen)
+			if(UI._elements.Find(i))
+				screen.Remove(i)
 		qdel(UI)
 		UI = null
 

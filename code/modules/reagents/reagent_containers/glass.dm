@@ -17,6 +17,7 @@
 	unacidable = 1 //glass doesn't dissolve in acid
 	matter = list(MATERIAL_GLASS = 1)
 	bad_type = /obj/item/reagent_containers/glass
+	var/display_label = TRUE // to show or not to show label on the sprite
 	var/label_icon_state
 	var/lid_icon_state
 
@@ -35,7 +36,6 @@
 		/mob/living/bot/medbot,
 		/obj/item/storage/secure/safe,
 		/obj/structure/medical_stand,
-		/obj/machinery/disease2/incubator,
 		/obj/machinery/disposal,
 		/mob/living/simple_animal/cow,
 		/mob/living/simple_animal/hostile/retaliate/goat,

@@ -51,15 +51,15 @@
 
 /datum/component/internal_wound/RegisterWithParent()
 	// Internal organ parent
-	RegisterSignal(parent, COMSIG_IWOUND_EFFECTS, .proc/apply_effects)
-	RegisterSignal(parent, COMSIG_IWOUND_LIMB_EFFECTS, .proc/apply_limb_effects)
-	RegisterSignal(parent, COMSIG_IWOUND_FLAGS_ADD, .proc/apply_flags)
-	RegisterSignal(parent, COMSIG_IWOUND_FLAGS_REMOVE, .proc/remove_flags)
-	RegisterSignal(parent, COMSIG_IWOUND_DAMAGE, .proc/apply_damage)
-	RegisterSignal(parent, COMSIG_IWOUND_TREAT, .proc/treatment)
+	RegisterSignal(parent, COMSIG_IWOUND_EFFECTS, PROC_REF(apply_effects))
+	RegisterSignal(parent, COMSIG_IWOUND_LIMB_EFFECTS, PROC_REF(apply_limb_effects))
+	RegisterSignal(parent, COMSIG_IWOUND_FLAGS_ADD, PROC_REF(apply_flags))
+	RegisterSignal(parent, COMSIG_IWOUND_FLAGS_REMOVE, PROC_REF(remove_flags))
+	RegisterSignal(parent, COMSIG_IWOUND_DAMAGE, PROC_REF(apply_damage))
+	RegisterSignal(parent, COMSIG_IWOUND_TREAT, PROC_REF(treatment))
 
 	// Surgery
-	RegisterSignal(src, COMSIG_ATTACKBY, .proc/apply_tool)
+	RegisterSignal(src, COMSIG_ATTACKBY, PROC_REF(apply_tool))
 
 	START_PROCESSING(SSinternal_wounds, src)
 
@@ -181,6 +181,9 @@
 						is_treated = TRUE
 					else
 						is_treated = S.use(charges_needed)
+			else if(istype(I)) // check for using items without stacks
+				is_treated = TRUE
+				qdel(I)
 			if(is_treated)
 				if(free_use)
 					to_chat(user, SPAN_NOTICE("You have managed to waste less [I.name]."))
@@ -236,7 +239,7 @@
 				if(!islist(H.internal_organs_by_efficiency[process]))
 					H.internal_organs_by_efficiency[process] = list()
 				H.internal_organs_by_efficiency[process] |= O
-	
+
 	if(organ_efficiency_multiplier)
 		for(var/organ in O.organ_efficiency)
 			O.organ_efficiency[organ] = round(O.organ_efficiency[organ] * (1 + organ_efficiency_multiplier), 1)

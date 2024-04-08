@@ -57,7 +57,7 @@ var/global/universe_has_ended = 0
 
 	spawn(rand(30,60) SECONDS)
 		var/txt = {"
-AUTOMATED ALERT: Attention [station_name()], this is a high alert broadcast to all ships from the central communication hub of the [boss_name], a catastrophe has happened on the ship [station_name()], information regarding the incident is classified.
+AUTOMATED ALERT: Attention [station_name], this is a high alert broadcast to all ships from the central communication hub of the [boss_name], a catastrophe has happened on the ship [station_name], information regarding the incident is classified.
 
 We highly suggest, that all corporate owned, and free ships within listening range depart into Bluespace. Until the incident ends, all employees aboard HTU operated ships will have their pay-rolls will be frozen, and their have benefits cut, independent ships not included.
 
@@ -96,7 +96,7 @@ AUTOMATED ALERT: Link to [command_name()] lost.
 /datum/universal_state/supermatter_cascade/proc/MiscSet()
 	for (var/obj/machinery/firealarm/alm in GLOB.firealarm_list)
 		if (!(alm.stat & BROKEN))
-			alm.ex_act(2)
+			alm.explosion_act(500, null)
 
 /datum/universal_state/supermatter_cascade/proc/APCSet()
 	for (var/obj/machinery/power/apc/APC in GLOB.apc_list)

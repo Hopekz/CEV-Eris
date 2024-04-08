@@ -144,7 +144,7 @@
 
 	message = capitalize(sanitize(message))
 	var/text = "<span class='revolution'>[name] member, [user.real_name]: \"[message]\"</span>"
-	for(var/i in SSmobs.mob_list)
+	for(var/i in SShumans.mob_list)
 		if(is_excelsior(i))
 			to_chat(i, text)
 
@@ -189,6 +189,7 @@
 
 		for(var/datum/objective/O in objectives)
 			text += "<br><b>Objective [num]:</b> [O.explanation_text] "
+			text += "[O.get_info()] "
 			if(O.check_completion())
 				text += "<font color='green'><B>Success!</B></font>"
 			else

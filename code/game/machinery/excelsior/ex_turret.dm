@@ -4,7 +4,7 @@
 
 /obj/machinery/porta_turret/excelsior
 	icon = 'icons/obj/machines/excelsior/turret.dmi'
-	desc = "A fully automated anti infantry platform. Fires 7.62mm rounds"
+	desc = "A fully automated anti infantry platform. Fires .30 caliber rounds"
 	icon_state = "turret_legs"
 	density = TRUE
 	lethal = TRUE
@@ -16,8 +16,9 @@
 	var/ammo_max = 96
 	var/working_range = 30 // how far this turret operates from excelsior teleporter
 	var/burst_lenght = 8
-	health = 60
+	health = 300
 	shot_delay = 0
+	shipside_only = TRUE
 
 /obj/machinery/porta_turret/excelsior/proc/has_power_source_nearby()
 	for (var/a in excelsior_teleporters)

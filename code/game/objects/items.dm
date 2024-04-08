@@ -16,7 +16,7 @@
 	var/abstract = 0
 	var/r_speed = 1
 	var/health = 100
-	var/max_health = 100
+	var/maxHealth = 100
 	var/burn_point
 	var/burning
 	var/hitsound = 'sound/weapons/genhit1.ogg'
@@ -29,6 +29,7 @@
 	var/extended_reach = FALSE		//Wielded spears can hit alive things one tile further.
 	var/ready = FALSE				//All weapons that are ITEM_SIZE_BULKY or bigger have double tact, meaning you have to click twice.
 	var/no_double_tact = FALSE		//for when you,  for some inconceivable reason, want a bulky item to not have double tact
+	var/no_swing = FALSE            //for when you do not want an item to swing-attack
 	var/push_attack = FALSE			//Hammers and spears can push the victim away on hit when you aim groin.
 	//Why are we using vars instead of defines or anything else?
 	//Because we need them to be shown in the tool info UI.
@@ -123,7 +124,7 @@
 		loc = null
 
 	QDEL_NULL(hidden_uplink)
-	QDEL_NULL(blood_overlay)
+	blood_overlay = null
 	QDEL_NULL(action)
 	if(hud_actions)
 		for(var/action in hud_actions)
@@ -135,16 +136,14 @@
 /obj/item/get_fall_damage()
 	return w_class * 2
 
-/obj/item/ex_act(severity)
-	switch(severity)
-		if(1)
-			qdel(src)
-		if(2)
-			if(prob(50))
-				qdel(src)
-		if(3)
-			if(prob(5))
-				qdel(src)
+/obj/item/proc/take_damage(amount)
+	health -= amount
+	if(health <= 0)
+		qdel(src)
+
+/obj/item/explosion_act(target_power, explosion_handler/handler)
+	take_damage(target_power)
+	return 0
 
 /obj/item/emp_act(severity)
 	if(chameleon_type)
@@ -270,16 +269,18 @@
 //	NOTE: This proc name was changed form pickup() as it makes more sense
 //	keep that in mind when porting items form other builds
 /obj/item/proc/pre_pickup(mob/user)
+	update_light()
 	return TRUE
 
 // called when this item is removed from a storage item, which is passed on as S. The loc variable is already set to the new destination before this is called.
 /obj/item/proc/on_exit_storage(obj/item/storage/the_storage)
-	SEND_SIGNAL_OLD(the_storage, COMSIG_STORAGE_TAKEN, src, the_storage)
+	SEND_SIGNAL(the_storage, COMSIG_STORAGE_TAKEN, src)
 	return
 
 // called when this item is added into a storage item, which is passed on as S. The loc variable is already set to the storage item.
 /obj/item/proc/on_enter_storage(obj/item/storage/the_storage)
-	SEND_SIGNAL_OLD(the_storage, COMSIG_STORAGE_INSERTED, src, the_storage)
+	SEND_SIGNAL(the_storage, COMSIG_STORAGE_INSERTED, src, the_storage)
+	//SEND_SIGNAL(src, COMSIG_ATOM_CONTAINERED, the_storage.getContainingMovable())
 	return
 
 // called when "found" in pockets and storage items. Returns 1 if the search should end.
@@ -377,7 +378,8 @@
 				SPAN_DANGER("You stab yourself in the eyes with [src]!") \
 			)
 
-		eyes.damage += rand(3,4)
+		playsound(loc, 'sound/weapons/melee/lightstab.ogg', 50, 1, -1)
+		eyes.take_damage(rand(24, 32), BRUTE, 1, FALSE, TRUE, FALSE)
 		if(eyes.damage >= eyes.min_bruised_damage)
 			if(M.stat != DEAD)
 				if(BP_IS_ORGANIC(eyes) || BP_IS_ASSISTED(eyes)) //robot eyes bleeding might be a bit silly
@@ -480,10 +482,6 @@ var/global/list/items_blood_overlay_by_type = list()
 		if (grabbed)
 			if (grabbed.stats.getPerk(PERK_ASS_OF_CONCRETE))
 				visible_message(SPAN_WARNING("[src] tries to pick up [grabbed], and fails!"))
-				if (ishuman(src))
-					var/mob/living/carbon/human/depleted = src
-					depleted.regen_slickness(-1) // unlucky and unobservant gets the penalty
-					return
 
 			else
 				if(ishuman(grabbed)) // irish whip if human(grab special), else spin and force rest
@@ -548,9 +546,6 @@ var/global/list/items_blood_overlay_by_type = list()
 			unEquip(I)
 			return
 		I.hand_spin(src)
-	if (ishuman(src))
-		var/mob/living/carbon/human/stylish = src
-		stylish.regen_slickness()
 
 /obj/item/proc/hand_spin(mob/living/carbon/caller) // used for custom behaviour on the above proc
 	return

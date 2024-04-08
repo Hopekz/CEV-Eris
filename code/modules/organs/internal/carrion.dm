@@ -61,7 +61,7 @@
 		/obj/item/organ/internal/carrion/core/proc/carrion_transform,
 		/obj/item/organ/internal/carrion/core/proc/EvolutionMenu,
 		/obj/item/organ/internal/carrion/core/proc/carrion_fakedeath,
-		/obj/item/organ/internal/carrion/core/proc/detatch,
+		/obj/item/organ/internal/carrion/core/proc/detach,
 		/obj/item/organ/internal/carrion/core/proc/make_spider,
 		/obj/item/organ/internal/carrion/core/proc/spider_menu
 	)
@@ -213,9 +213,9 @@
 		EvolutionMenu()
 	..()
 
-/obj/item/organ/internal/carrion/core/proc/detatch()
+/obj/item/organ/internal/carrion/core/proc/detach()
 	set category = "Carrion"
-	set name = "Detatch"
+	set name = "Detach"
 
 	if(owner.status_flags & FAKEDEATH)
 		to_chat(owner, SPAN_WARNING("We are regenerating our body!"))
@@ -371,7 +371,7 @@
 					if (istype(to_blacklist, /obj/item/organ/internal/bone/))
 						blacklist += to_blacklist
 						continue
-					if (istype(to_blacklist, /obj/item/organ/internal/brain/))
+					if (istype(to_blacklist, /obj/item/organ/internal/vital/brain/))
 						blacklist += to_blacklist// removing bones from a valid_organs list based on
 				var/list/valid_organs = E.internal_organs - blacklist// E.internal_organs gibs the victim.
 				if (!valid_organs.len)

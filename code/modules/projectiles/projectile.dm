@@ -20,7 +20,6 @@
 	spawn_blacklisted = TRUE
 	spawn_frequency = 0
 	spawn_tags = null
-	style_damage = 13 // stylish people can dodge lots of projectiles
 	var/bumped = FALSE		//Prevents it from hitting more than one guy at once
 	var/hitsound_wall = "ricochet"
 	var/list/mob_hit_sound = list('sound/effects/gore/bullethit2.ogg', 'sound/effects/gore/bullethit3.ogg') //Sound it makes when it hits a mob. It's a list so you can put multiple hit sounds there.
@@ -119,6 +118,10 @@
 	for(var/i in damage_types)
 		damage_types[i] *= i == HALLOSS ? 1 : newmult
 
+/obj/item/projectile/multiply_projectile_halloss(newmult)
+	for(var/i in damage_types)
+		damage_types[i] *= i == HALLOSS ? newmult : 1
+
 /obj/item/projectile/add_projectile_penetration(newmult)
 	armor_divisor = initial(armor_divisor) + newmult
 
@@ -162,7 +165,7 @@
     impact_effect(effect_transform)
     if(luminosity_ttl && attached_effect)
         spawn(luminosity_ttl)
-        qdel(attached_effect)
+        QDEL_NULL(attached_effect)
 
     if(!ismob(A))
         playsound(src, hitsound_wall, 50, 1, -2)
@@ -175,8 +178,11 @@
 		return FALSE
 	return TRUE
 
-/obj/item/projectile/proc/get_structure_damage()
-	return damage_types[BRUTE] + damage_types[BURN]
+/obj/item/projectile/proc/get_structure_damage(var/injury_type)
+	if(!injury_type) // Assume homogenous
+		return (damage_types[BRUTE] + damage_types[BURN]) * wound_check(INJURY_TYPE_HOMOGENOUS, wounding_mult, edge, sharp) * 2
+	else
+		return (damage_types[BRUTE] + damage_types[BURN]) * wound_check(injury_type, wounding_mult, edge, sharp) * 2
 
 //return 1 if the projectile should be allowed to pass through after all, 0 if not.
 /obj/item/projectile/proc/check_penetrate(atom/A)
@@ -248,7 +254,11 @@
 					height = HEIGHT_HIGH // We are shooting from below, this protects resting players at the expense of windows
 					original = get_turf(original) // Aim at turfs instead of mobs, to ensure we don't hit players
 
-	firer = user
+	// Special case for mechs, in a ideal world this should always go for the top-most atom.
+	if(istype(launcher.loc, /obj/item/mech_equipment))
+		firer = launcher.loc.loc
+	else
+		firer = user
 	shot_from = launcher.name
 	silenced = launcher.item_flags & SILENT
 
@@ -369,13 +379,13 @@
 			if(isroach(target_mob))
 				bumped = FALSE // Roaches do not bump when missed, allowing the bullet to attempt to hit the rest of the roaches in a single cluster
 		return FALSE
-
+	/*
 	//hit messages
 	if(silenced)
 		to_chat(target_mob, SPAN_DANGER("You've been hit in the [parse_zone(def_zone)] by \the [src]!"))
 	else
 		visible_message(SPAN_DANGER("\The [target_mob] is hit by \the [src] in the [parse_zone(def_zone)]!"))//X has fired Y is now given by the guns so you cant tell who shot you if you could not see the shooter
-
+	*/
 	playsound(target_mob, pick(mob_hit_sound), 40, 1)
 
 	//admin logs
@@ -425,6 +435,7 @@
 		loc = A.loc
 		return FALSE //go fuck yourself in another place pls
 
+
 	if((bumped && !forced) || (A in permutated))
 		return FALSE
 
@@ -440,8 +451,12 @@
 			trajectory.loc_z = loc.z
 			bumped = FALSE
 			return FALSE
-
 	if(ismob(A))
+		// Mobs inside containers shouldnt get bumped(such as mechs or closets)
+		if(!isturf(A.loc))
+			bumped = FALSE
+			return FALSE
+
 		var/mob/M = A
 		if(isliving(A))
 			//if they have a neck grab on someone, that person gets hit instead
@@ -456,9 +471,13 @@
 	else
 		passthrough = (A.bullet_act(src, def_zone) == PROJECTILE_CONTINUE) //backwards compatibility
 		if(isturf(A))
-			for(var/obj/O in A)
+			if(QDELETED(src)) // we don't want bombs to explode once for every time bullet_act is called
+				on_impact(A)
+				invisibility = 101
+				return TRUE // see that next line? it can overload the server.
+			for(var/obj/O in A) // if src's bullet act spawns more objs, the list will increase,
 				if(O.density)
-					O.bullet_act(src)
+					O.bullet_act(src) // causing exponential growth due to the spawned obj spawning itself
 			for(var/mob/living/M in A)
 				attack_mob(M)
 
@@ -467,7 +486,6 @@
 		if(check_penetrate(A))
 			passthrough = TRUE
 		penetrating--
-
 	//the bullet passes through a dense object!
 	if(passthrough)
 		//move ourselves onto A so we can continue on our way
@@ -491,8 +509,9 @@
 	qdel(src)
 	return TRUE
 
-/obj/item/projectile/ex_act()
-	return //explosions probably shouldn't delete projectiles
+
+/obj/item/projectile/explosion_act(target_power, explosion_handler/handler)
+	return 0
 
 /obj/item/projectile/CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
 	return TRUE
@@ -524,7 +543,8 @@
 		pixel_y = location.pixel_y
 
 		if(!bumped && !QDELETED(original) && !isturf(original))
-			if(loc == get_turf(original))
+			// this used to be loc == get_turf(original) , but this would break incase the original was inside something and hit them without hitting the outside
+			if(loc == original.loc)
 				if(!(original in permutated))
 					if(Bump(original))
 						return
@@ -655,6 +675,17 @@
 		qdel(src)
 
 	return dmg_total > 0 ? (dmg_remaining / dmg_total) : 0
+
+/obj/item/projectile/get_matter()
+	. = matter?.Copy()
+	if(isnull(.)) // empty bullets have no need for matter handling
+		return
+	if(istype(loc, /obj/item/ammo_casing)) // if this is part of a stack
+		var/obj/item/ammo_casing/case = loc
+		if(case.amount > 1) // if there is only one, there is no need to multiply
+			for(var/mattertype in .)
+				.[mattertype] *= case.amount
+
 
 //"Tracing" projectile
 /obj/item/projectile/test //Used to see if you can hit them.
