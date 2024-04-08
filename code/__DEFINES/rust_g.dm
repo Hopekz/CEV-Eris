@@ -1,3 +1,4 @@
+
 // rust_g.dm - DM API for rust_g extension library
 //
 // To configure, create a `rust_g.config.dm` and set what you care about from
@@ -35,7 +36,8 @@
 	else
 		return __rust_g = "rust_g"
 
-#define RUST_G (__rust_g || __detect_rust_g())
+#define RUST_G "rust_g"
+
 #endif
 
 /// Gets the version of rust_g

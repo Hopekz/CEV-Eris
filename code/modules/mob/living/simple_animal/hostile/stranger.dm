@@ -162,16 +162,22 @@
 
 /obj/item/gun/energy/plasma/stranger/examine(user, distance)
 	. = ..()
+	// 515 modifed - Hopek
 	var/area/my_area = get_area(src)
-	switch(my_area.bluespace_entropy)
-		if(0 to my_area.bluespace_hazard_threshold*0.3)
-			to_chat(user, SPAN_NOTICE("It's fading out."))
-		if(my_area.bluespace_hazard_threshold*0.7 to INFINITY)
+	var bluespace_entropy = my_area.bluespace_entropy
+	var bluespace_hazard_threshold = my_area.bluespace_hazard_threshold
+
+	if(bluespace_entropy <= bluespace_hazard_threshold*0.3)
+		to_chat(user, SPAN_NOTICE("It's fading out."))
+	else if(bluespace_entropy > bluespace_hazard_threshold*0.7)
+		if(bluespace_entropy <= bluespace_hazard_threshold*0.95)
 			to_chat(user, SPAN_NOTICE("It's occasionally pulsing with energy."))
+		else if(bluespace_entropy > bluespace_hazard_threshold*0.95 || GLOB.bluespace_entropy > GLOB.bluespace_hazard_threshold*0.95)
+			to_chat(user, SPAN_NOTICE("The energy surrounding it is overwhelming to the point of feeling warm in your hands."))
+
 	if(GLOB.bluespace_entropy > GLOB.bluespace_hazard_threshold*0.7)
 		to_chat(user, SPAN_NOTICE("It glows with an inner radiance."))
-	if(my_area.bluespace_entropy > my_area.bluespace_hazard_threshold*0.95 || GLOB.bluespace_entropy > GLOB.bluespace_hazard_threshold*0.95)
-		to_chat(user, SPAN_NOTICE("The energy surrounding it is overwhelming to the point of feeling warm in your hands."))
+
 
 
 
